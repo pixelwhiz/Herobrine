@@ -6,6 +6,9 @@ use pixelwhiz\herobrine\entity\Entity;
 use pixelwhiz\herobrine\entity\EntityHead;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\entity\Location;
+use pocketmine\network\mcpe\NetworkBroadcastUtils;
+use pocketmine\network\mcpe\protocol\LevelEventPacket;
+use pocketmine\network\mcpe\protocol\types\LevelEvent;
 use pocketmine\scheduler\Task;
 use pocketmine\world\particle\BlockBreakParticle;
 use pocketmine\world\Position;
@@ -39,6 +42,19 @@ class EntitySessionScheduler extends Task {
                 $entityHead = new EntityHead(Location::fromObject($pos->add(0.5, 0, 0.5), $world), $this->getSkin());
 
                 if ($this->startTime === 14) {
+
+                    $world->setTime(18000);
+                    $worldData = $world->getProvider()->getWorldData();
+                    $worldData->setRainTime(6000);
+                    $worldData->setRainLevel(1);
+                    $worldData->setLightningLevel(1);
+                    $pk = [LevelEventPacket::create(LevelEvent::START_THUNDER, 65535, null)];
+
+                    foreach ($world->getPlayers() as $player) {
+                        foreach ($pk as $packets) {
+                            $player->getNetworkSession()->sendDataPacket($packets);
+                        }
+                    }
 
                     $nearestPlayer = null;
                     foreach ($entityHead->getWorld()->getPlayers() as $player) {
