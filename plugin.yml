@@ -1,0 +1,12 @@
+---
+name: Herobrine
+version: 0.0.1
+main: pixelwhiz\herobrine\Herobrine
+api: 5.0.0
+src-namespace-prefix: pixelwhiz\herobrine
+
+permissions:
+  herobrine.cmd:
+    description: Allows users to use the Herobrine plugin.
+    default: op
+...
