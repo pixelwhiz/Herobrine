@@ -3,6 +3,7 @@
 namespace pixelwhiz\herobrine\sessions;
 
 use pixelwhiz\herobrine\entity\Entity;
+use pixelwhiz\herobrine\entity\EntityHead;
 use pixelwhiz\herobrine\Herobrine;
 use pixelwhiz\herobrine\sessions\EntityManager;
 use pixelwhiz\herobrine\sessions\EntitySessionScheduler;

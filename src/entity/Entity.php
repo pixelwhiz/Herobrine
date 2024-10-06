@@ -3,14 +3,10 @@
 namespace pixelwhiz\herobrine\entity;
 
 use pixelwhiz\herobrine\sessions\EntityManager;
+use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\entity\Human;
-use pocketmine\entity\Living;
-use pocketmine\event\entity\EntityDamageEvent;
-use pocketmine\inventory\PlayerOffHandInventory;
-use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\network\mcpe\protocol\types\entity\StringMetadataProperty;
-use pocketmine\player\Player;
 
 class Entity extends Human {
 
@@ -34,8 +30,14 @@ class Entity extends Human {
             $p->getNetworkSession()->getEntityEventBroadcaster()->syncActorData([$p->getNetworkSession()], $this, $data);
         }
 
-
         $this->getInventory()->setItemInHand($this->getMainWeapon());
+    }
+
+
+    protected function onDeath(): void
+    {
+        Weather::clear($this->getWorld());
+        Weather::resetTime($this->getWorld());
     }
 
 }

@@ -3,6 +3,7 @@
 namespace pixelwhiz\herobrine\sessions;
 
 use pixelwhiz\herobrine\entity\Entity;
+use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\block\MobHead;
 use pocketmine\block\utils\MobHeadType;
 use pocketmine\block\VanillaBlocks;
@@ -27,6 +28,7 @@ class EntitySessionHandler implements Listener {
             if ($item->getTypeId() === VanillaItems::NETHER_STAR()->getTypeId() && $block instanceof MobHead && $block->getMobHeadType() === MobHeadType::PLAYER) {
                 if ($this->trySpawnFromPattern($player, $block)) {
                     $this->startSession($block->getPosition());
+                    Weather::saveTime($player->getWorld());
                     $player->sendMessage("oke");
                 }
             }
