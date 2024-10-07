@@ -11,6 +11,7 @@ use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\item\VanillaItems;
+use pocketmine\player\GameMode;
 use pocketmine\player\Player;
 
 class EntitySessionHandler implements Listener {
@@ -18,22 +19,35 @@ class EntitySessionHandler implements Listener {
     use EntitySession;
     use EntityManager;
 
+    private float $lastClickTime = 0;
+
     public function onInteract(PlayerInteractEvent $event) {
         $player = $event->getPlayer();
         $action = $event->getAction();
         $block = $event->getBlock();
         $item = $event->getItem();
 
-        if ($action === PlayerInteractEvent::RIGHT_CLICK_BLOCK) {
+        if ($action === PlayerInteractEvent::LEFT_CLICK_BLOCK || $action === PlayerInteractEvent::RIGHT_CLICK_BLOCK) {
             if ($item->getTypeId() === VanillaItems::NETHER_STAR()->getTypeId() && $block instanceof MobHead && $block->getMobHeadType() === MobHeadType::PLAYER) {
+                $currentTime = microtime(true);
+                if ($currentTime - $this->lastClickTime < 3) {
+                    return;
+                }
+
+                $this->lastClickTime = $currentTime;
+
                 if ($this->trySpawnFromPattern($player, $block)) {
                     $this->startSession($block->getPosition());
                     Weather::saveTime($player->getWorld());
-                    $player->sendMessage("oke");
+                    if ($player->getGamemode() !== GameMode::CREATIVE) {
+                        $item->setCount($item->getCount() - 1);
+                        $player->getInventory()->setItemInHand($item);
+                    }
                 }
             }
         }
     }
+
 
     private function trySpawnFromPattern(Player $source, MobHead $block): bool {
         $world = $block->getPosition()->getWorld();
@@ -85,16 +99,6 @@ class EntitySessionHandler implements Listener {
         }
 
         return false;
-    }
-
-    public function onDamage(EntityDamageEvent $source) {
-        $entity = $source->getEntity();
-        if (!$entity instanceof Entity) return false;
-        if($source->getCause() === $source::CAUSE_FIRE || $source->getCause() === $source::CAUSE_FIRE_TICK || $source->getCause() === $source::CAUSE_LAVA) {
-            $source->cancel();
-        }
-
-        return true;
     }
 
 }

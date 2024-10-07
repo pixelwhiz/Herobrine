@@ -52,6 +52,4 @@ class Weather {
         }
     }
 
-    public static function sen
-
 }

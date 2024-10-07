@@ -14,6 +14,16 @@ trait EntitySession {
 
     use EntityManager;
 
+    public array $session = [];
+
+    public function getSession(Entity $entity) : array {
+        return $this->session[$entity->getId()];
+    }
+
+    public function setSession(Entity $entity, int $sessionId) : array {
+        return $this->session[$entity->getId()] = [$sessionId];
+    }
+
     public function PHASE_START() : int { return 0; }
     public function PHASE_GAME() : int { return 1; }
     public function PHASE_END() : int { return 2; }

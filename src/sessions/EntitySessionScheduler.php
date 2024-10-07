@@ -2,6 +2,7 @@
 
 namespace pixelwhiz\herobrine\sessions;
 
+use IvanCraft623\MobPlugin\sound\EntityShootSound;
 use pixelwhiz\herobrine\entity\Entity;
 use pixelwhiz\herobrine\entity\EntityHead;
 use pixelwhiz\herobrine\utils\Weather;
@@ -11,13 +12,20 @@ use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkBroadcastUtils;
 use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
+use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
+use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataFlags;
+use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\network\mcpe\protocol\types\entity\PropertySyncData;
 use pocketmine\network\mcpe\protocol\types\LevelEvent;
+use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 use pocketmine\scheduler\Task;
+use pocketmine\Server;
 use pocketmine\world\particle\BlockBreakParticle;
 use pocketmine\world\Position;
+use pocketmine\world\sound\ExplodeSound;
+use pocketmine\world\sound\FizzSound;
 
 class EntitySessionScheduler extends Task {
 
@@ -46,6 +54,7 @@ class EntitySessionScheduler extends Task {
 
                 if ($this->startTime === 14) {
                     $entityHead = new EntityHead(Location::fromObject($pos->add(0.5, 0, 0.5), $world), $this->getSkin());
+
                     $world->setTime(18000);
 
                     $nearestPlayer = null;
@@ -64,15 +73,18 @@ class EntitySessionScheduler extends Task {
 
                 }
 
+                if ($this->startTime === 12) {
+                    Weather::thunder($world);
+                }
+
                 if ($this->startTime === 10) {
 
-                    Weather::thunder($world);
-
-                    $world->setBlock($pos, VanillaBlocks::NETHERRACK());
-                    $world->setBlock($pos->add(0, 1, 0), VanillaBlocks::FIRE());
+                    $world->setBlock($pos, VanillaBlocks::SOUL_SOIL());
+                    $world->setBlock($pos->add(0, 1, 0), VanillaBlocks::SOUL_FIRE());
                     $world->addParticle($pos->add(0.5, 0.5, 0.5), new BlockBreakParticle($block));
 
                     $entity = new Entity(Location::fromObject($this->pos->add(0.5, 2, 0.5), $this->pos->getWorld()), $this->getSkin());
+                    $this->setSession($entity, $this->PHASE_START());
                     $nearestPlayer = null;
                     foreach ($entity->getWorld()->getPlayers() as $player) {
                         $distance = $entity->getPosition()->distance($player->getPosition()->asVector3());
@@ -83,6 +95,7 @@ class EntitySessionScheduler extends Task {
                     $yaw = $nearestPlayer !== null ? $nearestPlayer->getLocation()->getYaw() - 180 : 0;
                     $entity->setRotation($yaw, 0);
                     $entity->spawnToAll();
+                    //$entity->getNetworkProperties()->setGenericFlag(EntityMetadataFlags::IMMOBILE, true);
 
                     $packet = new AddActorPacket();
                     $packet->actorUniqueId = Entity::nextRuntimeId();
@@ -92,6 +105,7 @@ class EntitySessionScheduler extends Task {
                     $packet->yaw = $entity->getLocation()->getYaw();
                     $packet->syncedProperties = new PropertySyncData([], []);
                     $sound = PlaySoundPacket::create("ambient.weather.thunder", $pos->getX(), $pos->getY(), $pos->getZ(), 100, 1);
+                    $world->addSound($pos, new ExplodeSound(), $world->getPlayers());
                     NetworkBroadcastUtils::broadcastPackets($entity->getWorld()->getPlayers(), [$packet, $sound]);
                     $world->addParticle($entity->getPosition()->floor(), new BlockBreakParticle($block));
 
