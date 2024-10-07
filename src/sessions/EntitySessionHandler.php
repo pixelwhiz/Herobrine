@@ -37,7 +37,7 @@ class EntitySessionHandler implements Listener {
                 $this->lastClickTime = $currentTime;
 
                 if ($this->trySpawnFromPattern($player, $block)) {
-                    $this->startSession($block->getPosition());
+                    $this->spawnSession($block->getPosition());
                     Weather::saveTime($player->getWorld());
                     if ($player->getGamemode() !== GameMode::CREATIVE) {
                         $item->setCount($item->getCount() - 1);

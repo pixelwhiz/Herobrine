@@ -2,7 +2,6 @@
 
 namespace pixelwhiz\herobrine\sessions;
 
-use IvanCraft623\MobPlugin\sound\EntityShootSound;
 use pixelwhiz\herobrine\entity\Entity;
 use pixelwhiz\herobrine\entity\EntityHead;
 use pixelwhiz\herobrine\utils\Weather;
@@ -32,12 +31,16 @@ class EntitySessionScheduler extends Task {
     use EntitySession;
     use EntityManager;
 
-    private int $startTime = 15;
+    private int $spawnTime = 5;
+    private int $gameTime = 5;
     private int $endTime = 10;
+
+
     private int $phase;
     private Position $pos;
+    private Entity $entity;
 
-    public function __construct(int $phase, Position $pos) {
+    public function __construct(int $phase, Position $pos, ?Entity $entity = null) {
         $this->phase = $phase;
         $this->pos = $pos;
     }
@@ -45,14 +48,14 @@ class EntitySessionScheduler extends Task {
     public function onRun(): void
     {
         switch ($this->phase) {
-            case $this->PHASE_START():
-                $this->startTime--;
+            case $this->PHASE_SPAWN():
+                $this->spawnTime--;
 
                 $pos = $this->pos;
                 $world = $this->pos->getWorld();
                 $block = $world->getBlock($pos);
 
-                if ($this->startTime === 14) {
+                if ($this->spawnTime === 4) {
                     $entityHead = new EntityHead(Location::fromObject($pos->add(0.5, 0, 0.5), $world), $this->getSkin());
 
                     $world->setTime(18000);
@@ -73,18 +76,17 @@ class EntitySessionScheduler extends Task {
 
                 }
 
-                if ($this->startTime === 12) {
+                if ($this->spawnTime === 2) {
                     Weather::thunder($world);
                 }
 
-                if ($this->startTime === 10) {
-
+                if ($this->spawnTime === 0) {
                     $world->setBlock($pos, VanillaBlocks::SOUL_SOIL());
                     $world->setBlock($pos->add(0, 1, 0), VanillaBlocks::SOUL_FIRE());
                     $world->addParticle($pos->add(0.5, 0.5, 0.5), new BlockBreakParticle($block));
 
                     $entity = new Entity(Location::fromObject($this->pos->add(0.5, 2, 0.5), $this->pos->getWorld()), $this->getSkin());
-                    $this->setSession($entity, $this->PHASE_START());
+
                     $nearestPlayer = null;
                     foreach ($entity->getWorld()->getPlayers() as $player) {
                         $distance = $entity->getPosition()->distance($player->getPosition()->asVector3());
@@ -109,12 +111,12 @@ class EntitySessionScheduler extends Task {
                     NetworkBroadcastUtils::broadcastPackets($entity->getWorld()->getPlayers(), [$packet, $sound]);
                     $world->addParticle($entity->getPosition()->floor(), new BlockBreakParticle($block));
 
-                }
-
-                if ($this->startTime === 0) {
+                    $this->startSession($entity);
                     $this->getHandler()->cancel();
                 }
 
+                break;
+            case $this->PHASE_START():
                 break;
             case $this->PHASE_END():
                 $this->endTime--;

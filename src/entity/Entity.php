@@ -3,6 +3,7 @@
 namespace pixelwhiz\herobrine\entity;
 
 use pixelwhiz\herobrine\sessions\EntityManager;
+use pixelwhiz\herobrine\sessions\EntitySession;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\entity\Human;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -10,10 +11,12 @@ use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\network\mcpe\protocol\types\entity\StringMetadataProperty;
 use pocketmine\player\GameMode;
 use pocketmine\player\Player;
+use pocketmine\Server;
 
 class Entity extends Human {
 
     use EntityManager;
+    use EntitySession;
 
     public function getNameTag(): string
     {
@@ -42,11 +45,9 @@ class Entity extends Human {
         }
 
         if($nearestPlayer !== null){
-            $this->lookAt($nearestPlayer->getLocation());
-
             $direction = $nearestPlayer->getLocation()->subtract($this->getLocation()->x, $this->getLocation()->y, $this->getLocation()->z)->normalize()->multiply(0.3);
+            $this->lookAt($nearestPlayer->getLocation());
             $this->move($direction->getX(), $direction->getY(), $direction->getZ());
-            $this->jump();
 
             if($closestDistance <= 2.5){
                 $damageEvent = new EntityDamageEvent($nearestPlayer, EntityDamageEvent::CAUSE_ENTITY_ATTACK, 5);
