@@ -2,8 +2,8 @@
 
 namespace pixelwhiz\herobrine\entity;
 
-use pixelwhiz\herobrine\sessions\EntityManager;
-use pixelwhiz\herobrine\sessions\EntitySession;
+use pixelwhiz\herobrine\entity\sessions\EntitySession;
+use pixelwhiz\herobrine\entity\sessions\EntityManager;
 use pocketmine\entity\EntitySizeInfo;
 use pocketmine\entity\Human;
 use pocketmine\entity\Skin;

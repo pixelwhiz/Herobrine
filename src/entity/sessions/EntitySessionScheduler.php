@@ -1,6 +1,6 @@
 <?php
 
-namespace pixelwhiz\herobrine\sessions;
+namespace pixelwhiz\herobrine\entity\sessions;
 
 use pixelwhiz\herobrine\entity\Entity;
 use pixelwhiz\herobrine\entity\EntityHead;
@@ -10,21 +10,13 @@ use pocketmine\entity\Location;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\NetworkBroadcastUtils;
 use pocketmine\network\mcpe\protocol\AddActorPacket;
-use pocketmine\network\mcpe\protocol\LevelEventPacket;
-use pocketmine\network\mcpe\protocol\LevelSoundEventPacket;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
-use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataFlags;
-use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\network\mcpe\protocol\types\entity\PropertySyncData;
-use pocketmine\network\mcpe\protocol\types\LevelEvent;
-use pocketmine\network\mcpe\protocol\types\LevelSoundEvent;
 use pocketmine\scheduler\Task;
-use pocketmine\Server;
 use pocketmine\world\particle\BlockBreakParticle;
 use pocketmine\world\Position;
 use pocketmine\world\sound\ExplodeSound;
-use pocketmine\world\sound\FizzSound;
 
 class EntitySessionScheduler extends Task {
 
@@ -32,17 +24,18 @@ class EntitySessionScheduler extends Task {
     use EntityManager;
 
     private int $spawnTime = 5;
-    private int $gameTime = 5;
+    private int $startTime = 10;
     private int $endTime = 10;
 
 
     private int $phase;
     private Position $pos;
-    private Entity $entity;
+    private ?Entity $entity;
 
     public function __construct(int $phase, Position $pos, ?Entity $entity = null) {
         $this->phase = $phase;
         $this->pos = $pos;
+        $this->entity = $entity;
     }
 
     public function onRun(): void
@@ -97,6 +90,7 @@ class EntitySessionScheduler extends Task {
                     $yaw = $nearestPlayer !== null ? $nearestPlayer->getLocation()->getYaw() - 180 : 0;
                     $entity->setRotation($yaw, 0);
                     $entity->spawnToAll();
+                    $entity->setPhase($this->PHASE_SPAWN());
                     //$entity->getNetworkProperties()->setGenericFlag(EntityMetadataFlags::IMMOBILE, true);
 
                     $packet = new AddActorPacket();
@@ -117,6 +111,23 @@ class EntitySessionScheduler extends Task {
 
                 break;
             case $this->PHASE_START():
+                $this->startTime--;
+                if (!$this->entity instanceof Entity) $this->getHandler()->cancel();
+
+                $entity = $this->entity;
+                $entity->setPhase($this->PHASE_START());
+
+                $pos = $entity->getPosition();
+                $world = $entity->getWorld();
+
+                if ($this->startTime === 9) {
+                }
+
+                if ($this->startTime === 0) {
+                    $world->addSound($pos, new ExplodeSound(), $world->getPlayers());
+                    $entity->setPhase($this->PHASE_GAME());
+                }
+
                 break;
             case $this->PHASE_END():
                 $this->endTime--;

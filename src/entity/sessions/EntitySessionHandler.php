@@ -1,6 +1,6 @@
 <?php
 
-namespace pixelwhiz\herobrine\sessions;
+namespace pixelwhiz\herobrine\entity\sessions;
 
 use pixelwhiz\herobrine\entity\Entity;
 use pixelwhiz\herobrine\utils\Weather;
@@ -39,7 +39,7 @@ class EntitySessionHandler implements Listener {
                 if ($this->trySpawnFromPattern($player, $block)) {
                     $this->spawnSession($block->getPosition());
                     Weather::saveTime($player->getWorld());
-                    if ($player->getGamemode() !== GameMode::CREATIVE) {
+                    if ($player->getGamemode() !== GameMode::CREATIVE()) {
                         $item->setCount($item->getCount() - 1);
                         $player->getInventory()->setItemInHand($item);
                     }

@@ -2,11 +2,12 @@
 
 namespace pixelwhiz\herobrine\entity;
 
-use pixelwhiz\herobrine\sessions\EntityManager;
-use pixelwhiz\herobrine\sessions\EntitySession;
+use pixelwhiz\herobrine\entity\sessions\EntityManager;
+use pixelwhiz\herobrine\entity\sessions\EntitySession;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\entity\Human;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
 use pocketmine\network\mcpe\protocol\types\entity\StringMetadataProperty;
 use pocketmine\player\GameMode;
@@ -44,12 +45,12 @@ class Entity extends Human {
             }
         }
 
-        if($nearestPlayer !== null){
+        if($nearestPlayer !== null && $this->getPhase() === $this->PHASE_GAME()){
             $direction = $nearestPlayer->getLocation()->subtract($this->getLocation()->x, $this->getLocation()->y, $this->getLocation()->z)->normalize()->multiply(0.3);
             $this->lookAt($nearestPlayer->getLocation());
             $this->move($direction->getX(), $direction->getY(), $direction->getZ());
 
-            if($closestDistance <= 2.5){
+            if($closestDistance <= 3){
                 $damageEvent = new EntityDamageEvent($nearestPlayer, EntityDamageEvent::CAUSE_ENTITY_ATTACK, 5);
                 $nearestPlayer->attack($damageEvent);
                 if ($nearestPlayer instanceof Player) $nearestPlayer->knockBack(1, 1);
@@ -91,6 +92,14 @@ class Entity extends Human {
             Weather::clear($this->getWorld());
             Weather::resetTime($this->getWorld());
         }
+    }
+
+    public function setPhase(int $currentPhase): void {
+        $this->saveNBT()->setInt("currentPhase", $currentPhase);
+    }
+
+    public function getPhase(): int {
+        return $this->saveNBT()->getInt("currentPhase");
     }
 
 }

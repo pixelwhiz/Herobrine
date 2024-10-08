@@ -1,6 +1,5 @@
 <?php
 
-
 namespace pixelwhiz\herobrine\utils;
 
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
