@@ -6,6 +6,7 @@ use pixelwhiz\herobrine\entity\sessions\EntityManager;
 use pixelwhiz\herobrine\entity\sessions\EntitySession;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\entity\Human;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
@@ -102,8 +103,11 @@ class Entity extends Human {
             return;
         }
 
+        if ($this->getPhase() === $this->PHASE_START()) {
+            $source->cancel();
+        }
+
         parent::attack($source);
-        Server::getInstance()->getLogger()->info("Phase: ". $this->getPhase());
 
         if ($this->getHealth() <= 0) {
             Weather::clear($this->getWorld());
