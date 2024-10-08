@@ -19,6 +19,20 @@ class Entity extends Human {
     use EntityManager;
     use EntitySession;
 
+    public static int $phase = 0;
+
+    public function getPhase() : int {
+        return self::$phase;
+    }
+
+
+    public function setPhase(int $currentPhase): void {
+        if ($currentPhase < 0) {
+            throw new \InvalidArgumentException("Phase cannot be negative");
+        }
+        self::$phase = $currentPhase;
+    }
+
     public function getNameTag(): string
     {
         return "Herobrine";
@@ -34,26 +48,28 @@ class Entity extends Human {
         $nearestPlayer = null;
         $closestDistance = PHP_FLOAT_MAX;
 
-        foreach($this->getWorld()->getEntities() as $entity){
-            $distance = $this->location->distance($entity->getLocation());
+        if ($this->getPhase() === $this->PHASE_GAME()) {
+            foreach($this->getWorld()->getEntities() as $entity){
+                $distance = $this->location->distance($entity->getLocation());
 
-            if($distance < $closestDistance && $distance <= 15){
-                if (!$entity instanceof Entity) {
-                    $nearestPlayer = $entity;
-                    $closestDistance = $distance;
+                if($distance < $closestDistance && $distance <= 15){
+                    if (!$entity instanceof Entity) {
+                        $nearestPlayer = $entity;
+                        $closestDistance = $distance;
+                    }
                 }
             }
-        }
 
-        if($nearestPlayer !== null && $this->getPhase() === $this->PHASE_GAME()){
-            $direction = $nearestPlayer->getLocation()->subtract($this->getLocation()->x, $this->getLocation()->y, $this->getLocation()->z)->normalize()->multiply(0.3);
-            $this->lookAt($nearestPlayer->getLocation());
-            $this->move($direction->getX(), $direction->getY(), $direction->getZ());
+            if($nearestPlayer !== null){
+                $direction = $nearestPlayer->getLocation()->subtract($this->getLocation()->x, $this->getLocation()->y, $this->getLocation()->z)->normalize()->multiply(0.3);
+                $this->lookAt($nearestPlayer->getLocation());
+                $this->move($direction->getX(), $direction->getY(), $direction->getZ());
 
-            if($closestDistance <= 3){
-                $damageEvent = new EntityDamageEvent($nearestPlayer, EntityDamageEvent::CAUSE_ENTITY_ATTACK, 5);
-                $nearestPlayer->attack($damageEvent);
-                if ($nearestPlayer instanceof Player) $nearestPlayer->knockBack(1, 1);
+                if($closestDistance <= 3){
+                    $damageEvent = new EntityDamageEvent($nearestPlayer, EntityDamageEvent::CAUSE_ENTITY_ATTACK, 5);
+                    $nearestPlayer->attack($damageEvent);
+                    if ($nearestPlayer instanceof Player) $nearestPlayer->knockBack(1, 1);
+                }
             }
         }
 
@@ -87,19 +103,12 @@ class Entity extends Human {
         }
 
         parent::attack($source);
+        Server::getInstance()->getLogger()->info("Phase: ". $this->getPhase());
 
         if ($this->getHealth() <= 0) {
             Weather::clear($this->getWorld());
             Weather::resetTime($this->getWorld());
         }
-    }
-
-    public function setPhase(int $currentPhase): void {
-        $this->saveNBT()->setInt("currentPhase", $currentPhase);
-    }
-
-    public function getPhase(): int {
-        return $this->saveNBT()->getInt("currentPhase");
     }
 
 }

@@ -78,7 +78,8 @@ class EntitySessionScheduler extends Task {
                     $world->setBlock($pos->add(0, 1, 0), VanillaBlocks::SOUL_FIRE());
                     $world->addParticle($pos->add(0.5, 0.5, 0.5), new BlockBreakParticle($block));
 
-                    $entity = new Entity(Location::fromObject($this->pos->add(0.5, 2, 0.5), $this->pos->getWorld()), $this->getSkin());
+                    $entity = new Entity(Location::fromObject($this->pos->add(0.5, 2, 0.5), $this->pos->getWorld()), $this->getSkin(), $this->createBaseNBT($pos));
+                    $entity->setPhase($this->PHASE_SPAWN());
 
                     $nearestPlayer = null;
                     foreach ($entity->getWorld()->getPlayers() as $player) {
@@ -90,7 +91,6 @@ class EntitySessionScheduler extends Task {
                     $yaw = $nearestPlayer !== null ? $nearestPlayer->getLocation()->getYaw() - 180 : 0;
                     $entity->setRotation($yaw, 0);
                     $entity->spawnToAll();
-                    $entity->setPhase($this->PHASE_SPAWN());
                     //$entity->getNetworkProperties()->setGenericFlag(EntityMetadataFlags::IMMOBILE, true);
 
                     $packet = new AddActorPacket();
@@ -115,18 +115,21 @@ class EntitySessionScheduler extends Task {
                 if (!$this->entity instanceof Entity) $this->getHandler()->cancel();
 
                 $entity = $this->entity;
-                $entity->setPhase($this->PHASE_START());
 
                 $pos = $entity->getPosition();
                 $world = $entity->getWorld();
 
                 if ($this->startTime === 9) {
+                    $entity->setPhase($this->PHASE_START());
                 }
 
-                if ($this->startTime === 0) {
+                if ($this->startTime === 1) {
                     $world->addSound($pos, new ExplodeSound(), $world->getPlayers());
+
                     $entity->setPhase($this->PHASE_GAME());
                 }
+
+                if ($this->startTime === 0) $this->getHandler()->cancel();
 
                 break;
             case $this->PHASE_END():
