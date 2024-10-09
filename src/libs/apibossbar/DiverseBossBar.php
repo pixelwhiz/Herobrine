@@ -1,6 +1,6 @@
 <?php
 
-namespace pixelwhiz\herobrine\utils\apibossbar;
+namespace pixelwhiz\herobrine\libs\apibossbar;
 
 use pocketmine\entity\Attribute;
 use pocketmine\entity\AttributeMap;

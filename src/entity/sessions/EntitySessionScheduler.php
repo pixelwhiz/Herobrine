@@ -2,8 +2,11 @@
 
 namespace pixelwhiz\herobrine\entity\sessions;
 
+use Cassandra\ExecutionOptions;
 use pixelwhiz\herobrine\entity\Entity;
 use pixelwhiz\herobrine\entity\EntityHead;
+use pixelwhiz\herobrine\utils\BlockPattern;
+use pixelwhiz\herobrine\utils\BossBar;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\entity\Location;
@@ -123,53 +126,29 @@ class EntitySessionScheduler extends Task {
                     $entity->setPhase($this->PHASE_START());
                 }
 
+                if ($this->startTime <= 10) {
+                    BossBar::handle($entity);
+                }
+
                 if ($this->startTime === 1) {
                     $world->addSound($pos, new ExplodeSound(), $world->getPlayers());
-                    $blocksPos = [
 
-                        ## GOLD ##
-                        $world->getBlock($pos->subtract(1, 2, 0)->add(0, 0, 1))->getPosition(),
-                        $world->getBlock($pos->subtract(0, 2, 1)->add(0, 0, 0))->getPosition(),
-                        $world->getBlock($pos->subtract(1, 2, 1)->add(0, 0, 0))->getPosition(),
-
-                        $world->getBlock($pos->subtract(1, 2, 0)->add(0, 0, 0))->getPosition(),
-                        $world->getBlock($pos->subtract(0, 2, 0)->add(0, 0, 0))->getPosition(),
-                        $world->getBlock($pos->subtract(0, 2, 0)->add(0, 0, 1))->getPosition(),
-
-                        $world->getBlock($pos->subtract(0, 2, 0)->add(1, 0, 1))->getPosition(),
-                        $world->getBlock($pos->subtract(0, 2, 0)->add(1, 0, 0))->getPosition(),
-                        $world->getBlock($pos->subtract(0, 2, 1)->add(1, 0, 0))->getPosition(),
-                        ## GOLD ##
-
-                        ## REDSTONE ##
-                        $world->getBlock($pos->subtract(1, 1, 0)->add(0, 0, 1))->getPosition(),
-                        $world->getBlock($pos->subtract(0, 1, 1)->add(0, 0, 0))->getPosition(),
-                        $world->getBlock($pos->subtract(1, 1, 1)->add(0, 0, 0))->getPosition(),
-
-                        $world->getBlock($pos->subtract(1, 1, 0)->add(0, 0, 0))->getPosition(),
-                        $world->getBlock($pos->subtract(0, 1, 0)->add(0, 0, 0))->getPosition(),
-                        $world->getBlock($pos->subtract(0, 1, 0)->add(0, 0, 1))->getPosition(),
-
-                        $world->getBlock($pos->subtract(0, 1, 0)->add(1, 0, 1))->getPosition(),
-                        $world->getBlock($pos->subtract(0, 1, 0)->add(1, 0, 0))->getPosition(),
-                        $world->getBlock($pos->subtract(0, 1, 1)->add(1, 0, 0))->getPosition(),
-                        ## REDSTONE ##
-
-                        $world->getBlock($pos->subtract(0, 1, 0)->add(0, 0, 0))->getPosition(),
-                        $world->getBlock($pos->subtract(0, 0, 0)->add(0, 0, 0))->getPosition(),
-                    ];
-
-                    foreach ($blocksPos as $blockPos) {
-                        $world->setBlock($blockPos, VanillaBlocks::AIR());
-                    }
+                    BlockPattern::clearPattern($world, $pos);
                     $entity->setPhase($this->PHASE_GAME());
                 }
 
                 if ($this->startTime === 0) {
-
                     $this->getHandler()->cancel();
                 }
 
+                break;
+            case $this->PHASE_GAME():
+                if (!$this->entity instanceof Entity) $this->getHandler()->cancel();
+
+                $entity = $this->entity;
+
+                $pos = $entity->getPosition();
+                $world = $entity->getWorld();
                 break;
             case $this->PHASE_END():
                 $this->endTime--;

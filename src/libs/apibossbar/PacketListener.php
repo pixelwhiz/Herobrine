@@ -1,6 +1,6 @@
 <?php
 
-namespace pixelwhiz\herobrine\utils\apibossbar;
+namespace pixelwhiz\herobrine\libs\apibossbar;
 
 use InvalidArgumentException;
 use pocketmine\event\Listener;

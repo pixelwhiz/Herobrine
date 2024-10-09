@@ -4,6 +4,7 @@ namespace pixelwhiz\herobrine\entity;
 
 use pixelwhiz\herobrine\entity\sessions\EntityManager;
 use pixelwhiz\herobrine\entity\sessions\EntitySession;
+use pixelwhiz\herobrine\utils\BossBar;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\entity\Human;
 use pocketmine\event\entity\EntityDamageByEntityEvent;

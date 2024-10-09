@@ -24,6 +24,10 @@ trait EntitySession {
         Herobrine::getInstance()->getScheduler()->scheduleRepeatingTask(new EntitySessionScheduler($this->PHASE_START(), $entity->getPosition(), $entity), 20);
     }
 
+    public function gameSession(Entity $entity): void {
+        Herobrine::getInstance()->getScheduler()->scheduleRepeatingTask(new EntitySessionScheduler($this->PHASE_GAME(), $entity->getPosition(), $entity), 20);
+    }
+
     public function endSession(): void {
     }
 

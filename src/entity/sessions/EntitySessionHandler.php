@@ -2,12 +2,10 @@
 
 namespace pixelwhiz\herobrine\entity\sessions;
 
-use pixelwhiz\herobrine\entity\Entity;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\block\MobHead;
 use pocketmine\block\utils\MobHeadType;
 use pocketmine\block\VanillaBlocks;
-use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\item\VanillaItems;
