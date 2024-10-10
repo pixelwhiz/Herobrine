@@ -2,6 +2,7 @@
 
 namespace pixelwhiz\herobrine\utils;
 
+use pocketmine\block\Block;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\world\particle\BlockBreakParticle;
 use pocketmine\world\Position;
@@ -9,9 +10,8 @@ use pocketmine\world\World;
 
 class BlockPattern {
 
-    public static function clearPattern(World $world, Position $pos) : bool {
+    public static function clearPattern(World $world, Position $pos) : void {
         $blocksPos = [
-
             ## GOLD ##
             $world->getBlock($pos->subtract(1, 2, 0)->add(0, 0, 1))->getPosition(),
             $world->getBlock($pos->subtract(0, 2, 1)->add(0, 0, 0))->getPosition(),
@@ -46,8 +46,6 @@ class BlockPattern {
 
         foreach ($blocksPos as $blockPos) {
             $world->setBlock($blockPos, VanillaBlocks::AIR());
-            $world->addParticle($pos->add(0.5, 0.5, 0.5), new BlockBreakParticle($blockPos));
-            return true;
         }
     }
 

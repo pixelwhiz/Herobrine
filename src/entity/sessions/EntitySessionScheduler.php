@@ -134,6 +134,7 @@ class EntitySessionScheduler extends Task {
                     $world->addSound($pos, new ExplodeSound(), $world->getPlayers());
 
                     BlockPattern::clearPattern($world, $pos);
+
                     $entity->setPhase($this->PHASE_GAME());
                 }
 
