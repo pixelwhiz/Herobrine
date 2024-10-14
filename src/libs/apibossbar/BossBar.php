@@ -170,6 +170,7 @@ class BossBar
 	 * @return static
 	 */
 	public function setPercentage(float $percentage) : static{
+        if ($this->getPercentage() > 1) $this->setPercentage(1);
 		$percentage = (float) min(1.0, max(0.0, $percentage));
 		$this->getAttributeMap()->get(Attribute::HEALTH)->setValue($percentage * $this->getAttributeMap()->get(Attribute::HEALTH)->getMaxValue(), true, true);
 		#$this->sendAttributesPacket($this->getPlayers());

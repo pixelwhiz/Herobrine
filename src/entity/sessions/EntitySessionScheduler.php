@@ -6,7 +6,6 @@ use Cassandra\ExecutionOptions;
 use pixelwhiz\herobrine\entity\Entity;
 use pixelwhiz\herobrine\entity\EntityHead;
 use pixelwhiz\herobrine\utils\BlockPattern;
-use pixelwhiz\herobrine\utils\BossBar;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\entity\Location;
@@ -122,12 +121,9 @@ class EntitySessionScheduler extends Task {
                 $pos = $entity->getPosition();
                 $world = $entity->getWorld();
 
-                if ($this->startTime === 9) {
+                if ($this->startTime <= 10 && $this->startTime >= 1) {
                     $entity->setPhase($this->PHASE_START());
-                }
-
-                if ($this->startTime <= 10) {
-                    BossBar::handle($entity);
+                    $entity->bar->setPercentage($entity->bar->getPercentage() + 20 / $entity->getMaxHealth());
                 }
 
                 if ($this->startTime === 1) {

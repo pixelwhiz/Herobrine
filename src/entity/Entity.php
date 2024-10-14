@@ -4,9 +4,12 @@ namespace pixelwhiz\herobrine\entity;
 
 use pixelwhiz\herobrine\entity\sessions\EntityManager;
 use pixelwhiz\herobrine\entity\sessions\EntitySession;
-use pixelwhiz\herobrine\utils\BossBar;
+use pixelwhiz\herobrine\libs\apibossbar\BossBar;
+use pixelwhiz\herobrine\libs\apibossbar\DiverseBossBar;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\entity\Human;
+use pocketmine\entity\Location;
+use pocketmine\entity\Skin;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\nbt\tag\CompoundTag;
@@ -21,12 +24,21 @@ class Entity extends Human {
     use EntityManager;
     use EntitySession;
 
+    public BossBar $bar;
+
     public static int $phase = 0;
 
     public function getPhase() : int {
         return self::$phase;
     }
 
+    public function __construct(Location $location, Skin $skin, ?CompoundTag $nbt = null)
+    {
+        parent::__construct($location, $skin, $nbt);
+        $this->bar = new BossBar();
+        $this->bar->setTitle("Herobrine");
+        $this->bar->setPercentage(0);
+    }
 
     public function setPhase(int $currentPhase): void {
         if ($currentPhase < 0) {
@@ -42,37 +54,59 @@ class Entity extends Human {
 
     public function getMaxHealth(): int
     {
-        return 20;
+        return 100;
     }
 
     protected function entityBaseTick(int $tickDiff = 1): bool
     {
-        $nearestPlayer = null;
+        $nearestEntity = null;
         $closestDistance = PHP_FLOAT_MAX;
 
-        if ($this->getPhase() === $this->PHASE_GAME()) {
-            foreach($this->getWorld()->getEntities() as $entity){
-                $distance = $this->location->distance($entity->getLocation());
-
-                if($distance < $closestDistance && $distance <= 15){
-                    if (!$entity instanceof Entity) {
-                        $nearestPlayer = $entity;
-                        $closestDistance = $distance;
+        switch ($this->getPhase()) {
+            case $this->PHASE_START():
+                foreach ($this->getWorld()->getPlayers() as $player) {
+                    if ($this->getLocation()->distance($player->getLocation()->asVector3()) < 15) {
+                        $this->bar->addPlayer($player);
+                    } else {
+                        $this->bar->removePlayer($player);
                     }
                 }
-            }
+                break;
+            case $this->PHASE_GAME():
+                $this->bar->setPercentage($this->getHealth() / $this->getMaxHealth());
 
-            if($nearestPlayer !== null){
-                $direction = $nearestPlayer->getLocation()->subtract($this->getLocation()->x, $this->getLocation()->y, $this->getLocation()->z)->normalize()->multiply(0.3);
-                $this->lookAt($nearestPlayer->getLocation());
-                $this->move($direction->getX(), $direction->getY(), $direction->getZ());
+                foreach ($this->getWorld()->getPlayers() as $player) {
 
-                if($closestDistance <= 3){
-                    $damageEvent = new EntityDamageEvent($nearestPlayer, EntityDamageEvent::CAUSE_ENTITY_ATTACK, 5);
-                    $nearestPlayer->attack($damageEvent);
-                    if ($nearestPlayer instanceof Player) $nearestPlayer->knockBack(1, 1);
+                    if ($this->getLocation()->distance($player->getLocation()->asVector3()) < 15) {
+                        $this->bar->addPlayer($player);
+                    } else {
+                        $this->bar->removePlayer($player);
+                    }
                 }
-            }
+
+                foreach($this->getWorld()->getEntities() as $entity){
+                    $distance = $this->location->distance($entity->getLocation());
+
+                    if($distance < $closestDistance && $distance <= 15){
+                        if (!$entity instanceof Entity) {
+                            $nearestEntity = $entity;
+                            $closestDistance = $distance;
+                        }
+                    }
+                }
+
+                if($nearestEntity !== null){
+                    $direction = $nearestEntity->getLocation()->subtract($this->getLocation()->x, $this->getLocation()->y, $this->getLocation()->z)->normalize()->multiply(0.3);
+                    $this->lookAt($nearestEntity->getLocation());
+                    $this->move($direction->getX(), $direction->getY(), $direction->getZ());
+
+                    if($closestDistance <= 3){
+                        $damageEvent = new EntityDamageEvent($nearestEntity, EntityDamageEvent::CAUSE_ENTITY_ATTACK, 5);
+                        $nearestEntity->attack($damageEvent);
+                        if ($nearestEntity instanceof Player) $nearestEntity->knockBack(1, 1);
+                    }
+                }
+                break;
         }
 
         return parent::entityBaseTick($tickDiff);
@@ -111,6 +145,11 @@ class Entity extends Human {
         parent::attack($source);
 
         if ($this->getHealth() <= 0) {
+
+            foreach ($this->getWorld()->getPlayers() as $player) {
+                $this->bar->removePlayer($player);
+            }
+
             Weather::clear($this->getWorld());
             Weather::resetTime($this->getWorld());
         }
