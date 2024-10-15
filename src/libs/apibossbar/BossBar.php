@@ -247,7 +247,7 @@ class BossBar
 	 * TODO: use attributes and properties of the custom entity
 	 */
 	public function setEntity(?Entity $entity = null) : static{
-		if($entity instanceof Entity && ($entity->isClosed() || $entity->isFlaggedForDespawn())) throw new InvalidArgumentException("Entity $entity can not be used since its not valid anymore (closed or flagged for despawn)");
+		if($entity instanceof Entity && ($entity->isClosed() || $entity->isFlaggedForDespawn())) throw new InvalidArgumentException("HerobrineEntity $entity can not be used since its not valid anymore (closed or flagged for despawn)");
 		if($this->getEntity() instanceof Entity && !$entity instanceof Player) $this->getEntity()->flagForDespawn();
 		else{
 			$pk = new RemoveActorPacket();

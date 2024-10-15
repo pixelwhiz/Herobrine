@@ -23,8 +23,8 @@
 
 namespace pixelwhiz\herobrine\sessions;
 
-use pixelwhiz\herobrine\entity\Entity;
-use pixelwhiz\herobrine\entity\EntityHead;
+use pixelwhiz\herobrine\entity\HerobrineEntity;
+use pixelwhiz\herobrine\entity\HerobrineHead;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\block\Block;
 use pocketmine\block\MobHead;
@@ -49,15 +49,14 @@ class EntitySessionHandler implements Listener {
     public function onBreak(BlockBreakEvent $event) {
         $player = $event->getPlayer();
         foreach ($player->getWorld()->getEntities() as $entity) {
-            if ($entity instanceof EntityHead) {
+            if ($entity instanceof HerobrineHead) {
                 BlockPattern::protectSpawnPattern($event, $entity->getWorld(), $entity->getPosition());
             }
-            if ($entity instanceof Entity and $entity->getPhase() === $entity->PHASE_START()) {
+            if ($entity instanceof HerobrineEntity and $entity->getPhase() === $entity->PHASE_START()) {
                 BlockPattern::protectStartPattern($event, $entity->getWorld(), $entity->getPosition());
             }
         }
     }
-
 
     public function onInteract(PlayerInteractEvent $event) {
         $player = $event->getPlayer();

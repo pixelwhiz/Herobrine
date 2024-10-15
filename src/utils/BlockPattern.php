@@ -24,7 +24,7 @@
 namespace pixelwhiz\herobrine\utils;
 
 use Brick\Math\BigInteger;
-use pixelwhiz\herobrine\entity\Entity;
+use pixelwhiz\herobrine\entity\HerobrineEntity;
 use pocketmine\block\Block;
 use pocketmine\block\BlockTypeIds;
 use pocketmine\block\MobHead;

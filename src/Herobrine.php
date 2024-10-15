@@ -26,8 +26,8 @@ declare(strict_types=1);
 namespace pixelwhiz\herobrine;
 
 use pixelwhiz\herobrine\commands\HerobrineCommands;
-use pixelwhiz\herobrine\entity\Entity;
-use pixelwhiz\herobrine\entity\EntityHead;
+use pixelwhiz\herobrine\entity\HerobrineEntity;
+use pixelwhiz\herobrine\entity\HerobrineHead;
 use pixelwhiz\herobrine\sessions\EntityManager;
 use pixelwhiz\herobrine\sessions\EntitySessionHandler;
 use pocketmine\entity\EntityDataHelper;
@@ -63,12 +63,12 @@ class Herobrine extends PluginBase{
     }
 
     private function registerEntities() : void {
-        EntityFactory::getInstance()->register(EntityHead::class, function (World $world, CompoundTag $nbt): EntityHead {
-            return new EntityHead(EntityDataHelper::parseLocation($nbt, $world), $this->getSkin(), $nbt);
+        EntityFactory::getInstance()->register(HerobrineHead::class, function (World $world, CompoundTag $nbt): HerobrineHead {
+            return new HerobrineHead(EntityDataHelper::parseLocation($nbt, $world), $this->getSkin(), $nbt);
         }, ["HerobrineHead"]);
 
-        EntityFactory::getInstance()->register(Entity::class, function (World $world, CompoundTag $nbt): Entity {
-            return new Entity(EntityDataHelper::parseLocation($nbt, $world), $this->getSkin(), $nbt);
+        EntityFactory::getInstance()->register(HerobrineEntity::class, function (World $world, CompoundTag $nbt): HerobrineEntity {
+            return new HerobrineEntity(EntityDataHelper::parseLocation($nbt, $world), $this->getSkin(), $nbt);
         }, ["Herobrine"]);
     }
 

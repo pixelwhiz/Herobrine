@@ -23,8 +23,8 @@
 
 namespace pixelwhiz\herobrine\sessions;
 
-use pixelwhiz\herobrine\entity\Entity;
-use pixelwhiz\herobrine\entity\EntityHead;
+use pixelwhiz\herobrine\entity\HerobrineEntity;
+use pixelwhiz\herobrine\entity\HerobrineHead;
 use pixelwhiz\herobrine\Herobrine;
 use pocketmine\entity\Skin;
 use pocketmine\item\Item;
@@ -83,7 +83,7 @@ trait EntityManager {
         return new Skin("herobrine", $bytes);
     }
 
-    public function getHeadSkin(EntityHead $entity) : Skin {
+    public function getHeadSkin(HerobrineHead $entity) : Skin {
         return new Skin($entity->getSkin()->getSkinId(), $entity->getSkin()->getSkinData(), '', 'geometry.player_head', $this->HEAD_GEOMETRY());
     }
 

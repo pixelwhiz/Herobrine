@@ -26,7 +26,7 @@ namespace pixelwhiz\herobrine\entity;
 use pocketmine\entity\Entity;
 use pocketmine\player\Player;
 
-interface EntityInterface {
+interface BehaviourInterface {
 
 
     public function walking(): void;

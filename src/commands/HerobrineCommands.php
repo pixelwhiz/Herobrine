@@ -23,7 +23,7 @@
 
 namespace pixelwhiz\herobrine\commands;
 
-use pixelwhiz\herobrine\entity\Entity;
+use pixelwhiz\herobrine\entity\HerobrineEntity;
 use pixelwhiz\herobrine\Herobrine;
 use pixelwhiz\herobrine\sessions\EntityManager;
 use pocketmine\command\Command;
@@ -35,7 +35,7 @@ class HerobrineCommands extends Command {
 
     public function __construct(Herobrine $plugin)
     {
-        parent::__construct("herobrine", "Entity main commands", "Usage: /herobrine help", []);
+        parent::__construct("herobrine", "HerobrineEntity main commands", "Usage: /herobrine help", []);
         $this->setPermission("herobrine.cmd");
     }
 
@@ -48,7 +48,7 @@ class HerobrineCommands extends Command {
 
         // Call the static method from the trait
         $skin = self::getSkin();
-        $entity = new Entity($sender->getLocation(), $skin);
+        $entity = new HerobrineEntity($sender->getLocation(), $skin);
         $entity->spawnToAll();
         $sender->sendMessage("Herobrine entity created!");
         return true;

@@ -40,7 +40,7 @@ use pocketmine\player\GameMode;
 use pocketmine\player\Player;
 use pocketmine\Server;
 
-class Entity extends Human {
+class HerobrineEntity extends Human {
 
     use EntityManager;
     use EntitySession;
@@ -108,7 +108,7 @@ class Entity extends Human {
                     $distance = $this->location->distance($entity->getLocation());
 
                     if($distance < $closestDistance && $distance <= 15){
-                        if (!$entity instanceof Entity) {
+                        if (!$entity instanceof HerobrineEntity) {
                             $nearestEntity = $entity;
                             $closestDistance = $distance;
                         }
@@ -132,7 +132,6 @@ class Entity extends Human {
         return parent::entityBaseTick($tickDiff);
     }
 
-
     public function sendData(?array $targets, ?array $data = null): void
     {
         $targets = $targets ?? $this->hasSpawned;
@@ -147,7 +146,7 @@ class Entity extends Human {
         }
 
 
-        $this->bar->setTitle("Herobrine");
+        $this->bar->setTitle($this->getNameTag());
         $this->bar->setPercentage(0);
         $this->getInventory()->setItemInHand($this->getMainWeapon());
     }

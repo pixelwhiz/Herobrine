@@ -24,8 +24,8 @@
 namespace pixelwhiz\herobrine\sessions;
 
 use Cassandra\ExecutionOptions;
-use pixelwhiz\herobrine\entity\Entity;
-use pixelwhiz\herobrine\entity\EntityHead;
+use pixelwhiz\herobrine\entity\HerobrineEntity;
+use pixelwhiz\herobrine\entity\HerobrineHead;
 use pixelwhiz\herobrine\utils\BlockPattern;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\block\VanillaBlocks;
@@ -53,9 +53,9 @@ class EntitySessionScheduler extends Task {
 
     private int $phase;
     private Position $pos;
-    private ?Entity $entity;
+    private ?HerobrineEntity $entity;
 
-    public function __construct(int $phase, Position $pos, ?Entity $entity = null) {
+    public function __construct(int $phase, Position $pos, ?HerobrineEntity $entity = null) {
         $this->phase = $phase;
         $this->pos = $pos;
         $this->entity = $entity;
@@ -72,7 +72,7 @@ class EntitySessionScheduler extends Task {
                 $block = $world->getBlock($pos);
 
                 if ($this->spawnTime === 4) {
-                    $entityHead = new EntityHead(Location::fromObject($pos->add(0.5, 0, 0.5), $world), $this->getSkin());
+                    $entityHead = new HerobrineHead(Location::fromObject($pos->add(0.5, 0, 0.5), $world), $this->getSkin());
 
                     $world->setTime(18000);
 
@@ -102,7 +102,7 @@ class EntitySessionScheduler extends Task {
                     $world->setBlock($pos->add(0, 1, 0), VanillaBlocks::SOUL_FIRE());
                     $world->addParticle($pos->add(0.5, 0.5, 0.5), new BlockBreakParticle($block));
 
-                    $entity = new Entity(Location::fromObject($this->pos->add(0.5, 2, 0.5), $this->pos->getWorld()), $this->getSkin(), $this->createBaseNBT($pos));
+                    $entity = new HerobrineEntity(Location::fromObject($this->pos->add(0.5, 2, 0.5), $this->pos->getWorld()), $this->getSkin(), $this->createBaseNBT($pos));
                     $entity->setPhase($this->PHASE_SPAWN());
 
                     $nearestPlayer = null;
@@ -118,7 +118,7 @@ class EntitySessionScheduler extends Task {
                     //$entity->getNetworkProperties()->setGenericFlag(EntityMetadataFlags::IMMOBILE, true);
 
                     $packet = new AddActorPacket();
-                    $packet->actorUniqueId = Entity::nextRuntimeId();
+                    $packet->actorUniqueId = HerobrineEntity::nextRuntimeId();
                     $packet->actorRuntimeId = 1;
                     $packet->position = $entity->getPosition()->asVector3();
                     $packet->type = EntityIds::LIGHTNING_BOLT;
@@ -136,7 +136,7 @@ class EntitySessionScheduler extends Task {
                 break;
             case $this->PHASE_START():
                 $this->startTime--;
-                if (!$this->entity instanceof Entity) $this->getHandler()->cancel();
+                if (!$this->entity instanceof HerobrineEntity) $this->getHandler()->cancel();
 
                 $entity = $this->entity;
 
@@ -162,7 +162,7 @@ class EntitySessionScheduler extends Task {
 
                 break;
             case $this->PHASE_GAME():
-                if (!$this->entity instanceof Entity) $this->getHandler()->cancel();
+                if (!$this->entity instanceof HerobrineEntity) $this->getHandler()->cancel();
 
                 $entity = $this->entity;
 

@@ -25,7 +25,7 @@ namespace pixelwhiz\herobrine\entity;
 
 use pocketmine\entity\Entity;
 
-class EntityAbilities implements EntityInterface {
+class EntityAbilities implements BehaviourInterface {
 
     public function attackPlayer(): void
     {

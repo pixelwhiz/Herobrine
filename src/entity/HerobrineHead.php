@@ -35,7 +35,7 @@ use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\player\Player;
 
-class EntityHead extends Human {
+class HerobrineHead extends Human {
 
     use EntityManager;
     use EntitySession;
