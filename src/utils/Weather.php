@@ -32,13 +32,18 @@ class Weather {
 
     public static array $time = [];
 
+    /**
+     * @TODO: saveTime() when SPAWN_PHASE()
+     * @param World $world
+     * @return bool
+     */
     public static function saveTime(World $world) : bool {
         if (self::$time[$world->getFolderName()] = $world->getTime()) return true;
         return false;
     }
 
     /**
-     * @description: Reset time to Default where $time has saved at SPAWN_PHASE()
+     * @TODO: Reset time to Default where $time has saved at SPAWN_PHASE()
      * @param World $world
      * @return void
      */
@@ -48,7 +53,7 @@ class Weather {
     }
 
     /**
-     * @description: 
+     * @TODO: Generate thunder bolt
      * @param World $world
      * @return void
      */
@@ -64,6 +69,13 @@ class Weather {
         }
     }
 
+
+    /**
+     *
+     * @TODO: Change weather to clear when HerobrineEntity() was Dead
+     * @param World $world
+     * @return void
+     */
     public static function clear(World $world) {
         $worldData = $world->getProvider()->getWorldData();
         $worldData->setRainTime(0);
