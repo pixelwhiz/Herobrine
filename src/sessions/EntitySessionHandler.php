@@ -1,6 +1,6 @@
 <?php
 
-namespace pixelwhiz\herobrine\entity\sessions;
+namespace pixelwhiz\herobrine\sessions;
 
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\block\MobHead;

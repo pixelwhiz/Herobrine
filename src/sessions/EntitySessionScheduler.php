@@ -1,6 +1,6 @@
 <?php
 
-namespace pixelwhiz\herobrine\entity\sessions;
+namespace pixelwhiz\herobrine\sessions;
 
 use Cassandra\ExecutionOptions;
 use pixelwhiz\herobrine\entity\Entity;
@@ -62,6 +62,7 @@ class EntitySessionScheduler extends Task {
                             $nearestPlayer = $player;
                         }
                     }
+
                     $yaw = $nearestPlayer !== null ? $nearestPlayer->getLocation()->getYaw() - 180 : 0;
                     $entityHead->setRotation($yaw, 0);
 
@@ -123,7 +124,6 @@ class EntitySessionScheduler extends Task {
 
                 if ($this->startTime <= 10 && $this->startTime >= 1) {
                     $entity->setPhase($this->PHASE_START());
-                    $entity->bar->setPercentage($entity->bar->getPercentage() + 20 / $entity->getMaxHealth());
                 }
 
                 if ($this->startTime === 1) {
@@ -131,6 +131,7 @@ class EntitySessionScheduler extends Task {
 
                     BlockPattern::clearPattern($world, $pos);
 
+                    $entity->setFireTicks(0);
                     $entity->setPhase($this->PHASE_GAME());
                 }
 

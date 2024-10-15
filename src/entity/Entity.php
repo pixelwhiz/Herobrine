@@ -2,8 +2,8 @@
 
 namespace pixelwhiz\herobrine\entity;
 
-use pixelwhiz\herobrine\entity\sessions\EntityManager;
-use pixelwhiz\herobrine\entity\sessions\EntitySession;
+use pixelwhiz\herobrine\sessions\EntityManager;
+use pixelwhiz\herobrine\sessions\EntitySession;
 use pixelwhiz\herobrine\libs\apibossbar\BossBar;
 use pixelwhiz\herobrine\libs\apibossbar\DiverseBossBar;
 use pixelwhiz\herobrine\utils\Weather;
@@ -36,8 +36,6 @@ class Entity extends Human {
     {
         parent::__construct($location, $skin, $nbt);
         $this->bar = new BossBar();
-        $this->bar->setTitle("Herobrine");
-        $this->bar->setPercentage(0);
     }
 
     public function setPhase(int $currentPhase): void {
@@ -64,6 +62,7 @@ class Entity extends Human {
 
         switch ($this->getPhase()) {
             case $this->PHASE_START():
+                $this->bar->setPercentage($this->bar->getPercentage() + 1 / $this->getMaxHealth());
                 foreach ($this->getWorld()->getPlayers() as $player) {
                     if ($this->getLocation()->distance($player->getLocation()->asVector3()) < 15) {
                         $this->bar->addPlayer($player);
@@ -126,6 +125,9 @@ class Entity extends Human {
             $p->getNetworkSession()->getEntityEventBroadcaster()->syncActorData([$p->getNetworkSession()], $this, $data);
         }
 
+
+        $this->bar->setTitle("Herobrine");
+        $this->bar->setPercentage(0);
         $this->getInventory()->setItemInHand($this->getMainWeapon());
     }
 

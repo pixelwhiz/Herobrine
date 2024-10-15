@@ -1,6 +1,6 @@
 <?php
 
-namespace pixelwhiz\herobrine\entity\sessions;
+namespace pixelwhiz\herobrine\sessions;
 
 use pixelwhiz\herobrine\entity\Entity;
 use pixelwhiz\herobrine\Herobrine;

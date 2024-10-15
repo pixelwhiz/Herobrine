@@ -4,7 +4,7 @@ namespace pixelwhiz\herobrine\commands;
 
 use pixelwhiz\herobrine\entity\Entity;
 use pixelwhiz\herobrine\Herobrine;
-use pixelwhiz\sessions\EntityManager; // Trait should be imported here
+use pixelwhiz\herobrine\sessions\EntityManager;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\entity\Skin;
