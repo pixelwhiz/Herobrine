@@ -38,8 +38,16 @@ use pocketmine\world\Position;
 
 trait EntityManager {
 
+    /**
+     * @method HerobrineHead setSkin()
+     * @return string
+     */
     public function HEAD_GEOMETRY() : string { return '{"format_version": "1.12.0", "minecraft:geometry": [{"description": {"identifier": "geometry.player_head", "texture_width": 64, "texture_height": 64, "visible_bounds_width": 2, "visible_bounds_height": 4, "visible_bounds_offset": [0, 0, 0]}, "bones": [{"name": "Head", "pivot": [0, 24, 0], "cubes": [{"origin": [-4, 0, -4], "size": [8, 8, 8], "uv": [0, 0]}, {"origin": [-4, 0, -4], "size": [8, 8, 8], "inflate": 0.5, "uv": [32, 0]}]}]}]}'; }
 
+
+    /**
+     * @TODO: Create Base NBT at Entity()
+     */
     public function createBaseNBT(Position $pos, ?Vector3 $motion = null, float $yaw = 0.0, float $pitch = 0.0): CompoundTag {
         return CompoundTag::create()
             ->setTag("Pos", new ListTag([
@@ -58,6 +66,11 @@ trait EntityManager {
             ]));
     }
 
+    /**
+     * @method HerobrineEntity setSkin()
+     * @return Skin
+     * @throws \JsonException
+     */
     public function getSkin() : Skin {
         $path = Herobrine::getInstance()->getDataFolder() . "/skins/herobrine.png";
         $img = @imagecreatefrompng($path);
@@ -83,6 +96,12 @@ trait EntityManager {
         return new Skin("herobrine", $bytes);
     }
 
+    /**
+     * @method HerobrineHead setSkin()
+     * @param HerobrineHead $entity
+     * @return Skin
+     * @throws \JsonException
+     */
     public function getHeadSkin(HerobrineHead $entity) : Skin {
         return new Skin($entity->getSkin()->getSkinId(), $entity->getSkin()->getSkinData(), '', 'geometry.player_head', $this->HEAD_GEOMETRY());
     }
