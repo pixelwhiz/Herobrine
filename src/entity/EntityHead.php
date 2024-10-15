@@ -2,6 +2,7 @@
 
 namespace pixelwhiz\herobrine\entity;
 
+use pixelwhiz\herobrine\libs\apibossbar\BossBar;
 use pixelwhiz\herobrine\sessions\EntitySession;
 use pixelwhiz\herobrine\sessions\EntityManager;
 use pocketmine\entity\EntitySizeInfo;
