@@ -50,9 +50,13 @@ class EntitySessionHandler implements Listener {
         $player = $event->getPlayer();
         foreach ($player->getWorld()->getEntities() as $entity) {
             if ($entity instanceof HerobrineHead) {
+
+                // TODO: Cancel BlockBreakEvent() when PHASE_SPAWN()
                 BlockPattern::protectSpawnPattern($event, $entity->getWorld(), $entity->getPosition());
             }
             if ($entity instanceof HerobrineEntity and $entity->getPhase() === $entity->PHASE_START()) {
+
+                // TODO: Cancel BlockBreakEvent() when PHASE_START()
                 BlockPattern::protectStartPattern($event, $entity->getWorld(), $entity->getPosition());
             }
         }
@@ -66,6 +70,10 @@ class EntitySessionHandler implements Listener {
 
         if ($action === PlayerInteractEvent::LEFT_CLICK_BLOCK || $action === PlayerInteractEvent::RIGHT_CLICK_BLOCK) {
             if ($item->getTypeId() === VanillaItems::NETHER_STAR()->getTypeId() && $block instanceof MobHead && $block->getMobHeadType() === MobHeadType::PLAYER) {
+                /**
+                 * @TODO: Avoid the appearance of double click HerobrineEntity()
+                 * @var $currentTime bool
+                 */
                 $currentTime = microtime(true);
                 if ($currentTime - $this->lastClickTime < 3) {
                     return;

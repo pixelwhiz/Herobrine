@@ -37,11 +37,21 @@ class Weather {
         return false;
     }
 
+    /**
+     * @description: Reset time to Default where $time has saved at SPAWN_PHASE()
+     * @param World $world
+     * @return void
+     */
     public static function resetTime(World $world) {
         $time = self::$time[$world->getFolderName()] ?? 0;
         $world->setTime($time);
     }
 
+    /**
+     * @description: 
+     * @param World $world
+     * @return void
+     */
     public static function thunder(World $world){
         $worldData = $world->getProvider()->getWorldData();
         $worldData->setLightningLevel(1);

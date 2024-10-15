@@ -81,10 +81,20 @@ class HerobrineEntity extends Human {
         $nearestEntity = null;
         $closestDistance = PHP_FLOAT_MAX;
 
+        foreach (Server::getInstance()->getOnlinePlayers() as $player) {
+            if ($this->getWorld()->getFolderName() === $player->getWorld()->getFolderName()) {
+                Weather::thunder($this->getWorld());
+            } else {
+                Weather::clear($player->getWorld());
+                $this->bar->removePlayer($player);
+            }
+        }
+
         switch ($this->getPhase()) {
             case $this->PHASE_START():
                 $this->bar->setPercentage($this->bar->getPercentage() + 1 / $this->getMaxHealth());
                 foreach ($this->getWorld()->getPlayers() as $player) {
+
                     if ($this->getLocation()->distance($player->getLocation()->asVector3()) < 15) {
                         $this->bar->addPlayer($player);
                     } else {

@@ -31,11 +31,17 @@ trait EntitySession {
 
     use EntityManager;
 
+    /**
+     * @method static HerobrineEntity getPhase()
+     * @return int
+     */
+
     public function PHASE_NULL() : int { return 0; }
     public function PHASE_SPAWN() : int { return 1; }
     public function PHASE_START() : int { return 2; }
     public function PHASE_GAME() : int { return 3; }
     public function PHASE_END() : int { return 4; }
+
 
     public function spawnSession(Position $pos): void {
         Herobrine::getInstance()->getScheduler()->scheduleRepeatingTask(new EntitySessionScheduler($this->PHASE_SPAWN(), $pos), 20);

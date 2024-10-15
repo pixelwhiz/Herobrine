@@ -55,6 +55,7 @@ class EntitySessionScheduler extends Task {
     private Position $pos;
     private ?HerobrineEntity $entity;
 
+
     public function __construct(int $phase, Position $pos, ?HerobrineEntity $entity = null) {
         $this->phase = $phase;
         $this->pos = $pos;

@@ -37,6 +37,12 @@ use pocketmine\world\World;
 
 class BlockPattern {
 
+    /**
+     *
+     * @description: Try spawn Entity() with some pattern including GOLD(), REDSTONE_TORCH() and REDSTONE_WIRE().
+     * @priority: HIGH
+     *
+     */
     public static function trySpawnFromPattern(Player $source, MobHead $block): bool {
         $world = $block->getPosition()->getWorld();
         $pos = $block->getPosition();
@@ -58,6 +64,7 @@ class BlockPattern {
         $g12 = $world->getBlock($pos->subtract(0, 1, 0)->add(1, 0, 0))->getTypeId();
         $g13 = $world->getBlock($pos->subtract(0, 1, 1)->add(1, 0, 0))->getTypeId();
 
+        // TODO: Check block GOLD type id
         if ($g1 === $gold and $g2 === $gold and $g3 === $gold and
             $g4 === $gold and $g5 === $gold and $g6 === $gold and
             $g7 === $gold and $g8 === $gold and $g9 === $gold and
@@ -71,6 +78,7 @@ class BlockPattern {
             $r3 = $world->getBlock($pos->subtract(0, 0, 1)->add(0, 0, 0))->getTypeId();
             $r4 = $world->getBlock($pos->subtract(0, 0, 0)->add(1, 0, 0))->getTypeId();
 
+            // TODO: Check block REDSTONE type id
             if ($r1 === $redstone and $r2 === $redstone and $r3 === $redstone and $r4 === $redstone) {
 
                 $redstoneTorch = VanillaBlocks::REDSTONE_TORCH()->getTypeId();
@@ -90,6 +98,13 @@ class BlockPattern {
     }
 
 
+    /**
+     *
+     * @description: Clear and replace any BLOCKS to AIR when startTime === 0
+     * @param World $world
+     * @param Position $pos
+     * @return void
+     */
     public static function clearPattern(World $world, Position $pos) : void {
         
         $blocks = [
@@ -122,6 +137,9 @@ class BlockPattern {
 
         foreach ($blocks as $block) {
             if ($block instanceof Block) {
+
+                // TODO: Replace block to AIR
+
                 $world->addParticle($block->getPosition(), new BlockBreakParticle($block), $world->getPlayers());
                 $world->setBlock($block->getPosition(), VanillaBlocks::AIR());
             }
@@ -130,9 +148,8 @@ class BlockPattern {
 
     /**
      *
-     * @description: protect 'Spawn Phase' block pattern from block breaking
+     * @description: protect SPAWN_PHASE() block pattern from BlockBreakEvent()
      * @priority HIGH
-     *
      * @param BlockBreakEvent $event
      * @param World $world
      * @param Position $pos
@@ -170,6 +187,8 @@ class BlockPattern {
 
         foreach ($blocks as $block) {
             if ($block instanceof Block and $event->getBlock() === $block) {
+
+                // TODO: Cancel block breaking
                 $event->cancel();
             }
         }
@@ -178,9 +197,8 @@ class BlockPattern {
 
     /**
      *
-     * @description: protect 'Start Phase' block pattern from block breaking
+     * @description: protect START_PHASE() block pattern when BlockbreakEvent()
      * @priority HIGH
-     *
      * @param BlockBreakEvent $event
      * @param World $world
      * @param Position $pos
@@ -219,6 +237,8 @@ class BlockPattern {
 
         foreach ($blocks as $block) {
             if ($block instanceof Block and $event->getBlock() === $block) {
+
+                // TODO: Cancel block breaking
                 $event->cancel();
             }
         }
