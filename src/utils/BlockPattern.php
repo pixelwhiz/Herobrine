@@ -120,31 +120,31 @@ class BlockPattern {
     public static function protectSpawnPattern(BlockBreakEvent $event, World $world, Position $pos) : void {
 
         $blocks = [
-            $world->getBlock($pos->subtract(1, 2, 0)->add(0, 0, 1)),
-            $world->getBlock($pos->subtract(0, 2, 1)->add(0, 0, 0)),
-            $world->getBlock($pos->subtract(1, 2, 1)->add(0, 0, 0)),
-
-            $world->getBlock($pos->subtract(1, 2, 0)->add(0, 0, 0)),
-            $world->getBlock($pos->subtract(0, 2, 0)->add(0, 0, 0)),
-            $world->getBlock($pos->subtract(0, 2, 0)->add(0, 0, 1)),
-
-            $world->getBlock($pos->subtract(0, 2, 0)->add(1, 0, 1)),
-            $world->getBlock($pos->subtract(0, 2, 0)->add(1, 0, 0)),
-            $world->getBlock($pos->subtract(0, 2, 1)->add(1, 0, 0)),
-            ## GOLD ##
-
-            ## REDSTONE ##
             $world->getBlock($pos->subtract(1, 1, 0)->add(0, 0, 1)),
             $world->getBlock($pos->subtract(0, 1, 1)->add(0, 0, 0)),
+            $world->getBlock($pos->subtract(0, 1, 1)->add(1, 0, 0)),
+            $world->getBlock($pos->subtract(0, 1, 0)->add(1, 0, 1)),
             $world->getBlock($pos->subtract(1, 1, 1)->add(0, 0, 0)),
 
+            $world->getBlock($pos->subtract(0, 1, 0)->add(0, 0, 1)),
+            $world->getBlock($pos->subtract(0, 1, 1)->add(0, 0, 0)),
             $world->getBlock($pos->subtract(1, 1, 0)->add(0, 0, 0)),
             $world->getBlock($pos->subtract(0, 1, 0)->add(0, 0, 0)),
-            $world->getBlock($pos->subtract(0, 1, 0)->add(0, 0, 1)),
+            $world->getBlock($pos->subtract(0, 1, 1)->add(0, 0, 0)),
 
             $world->getBlock($pos->subtract(0, 1, 0)->add(1, 0, 1)),
             $world->getBlock($pos->subtract(0, 1, 0)->add(1, 0, 0)),
             $world->getBlock($pos->subtract(0, 1, 1)->add(1, 0, 0)),
+
+            $world->getBlock($pos->subtract(0, 0, 0)->add(0, 0, 1)),
+            $world->getBlock($pos->subtract(1, 0, 0)->add(0, 0, 0)),
+            $world->getBlock($pos->subtract(0, 0, 1)->add(0, 0, 0)),
+            $world->getBlock($pos->subtract(0, 0, 0)->add(1, 0, 0)),
+            
+            $world->getBlock($pos->subtract(1, 0, 0)->add(0, 0, 1)),
+            $world->getBlock($pos->subtract(1, 0, 1)->add(0, 0, 0)),
+            $world->getBlock($pos->subtract(0, 0, 0)->add(1, 0, 1)),
+            $world->getBlock($pos->subtract(0, 0, 1)->add(1, 0, 0))
         ];
 
         foreach ($blocks as $block) {
