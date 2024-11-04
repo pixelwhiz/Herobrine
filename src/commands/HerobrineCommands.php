@@ -25,11 +25,10 @@ namespace pixelwhiz\herobrine\commands;
 
 use pixelwhiz\herobrine\entity\HerobrineEntity;
 use pixelwhiz\herobrine\Herobrine;
-use pixelwhiz\herobrine\sessions\EntityManager;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\entity\Skin;
 use pocketmine\player\Player;
+use pocketmine\Server;
 
 class HerobrineCommands extends Command {
 
@@ -42,15 +41,33 @@ class HerobrineCommands extends Command {
     public function execute(CommandSender $sender, string $commandLabel, array $args)
     {
         if (!$sender instanceof Player) {
-            $sender->sendMessage("This command can only be executed in-game.");
+            $sender->sendMessage("Only players can execute this command");
             return false;
         }
 
-        // Call the static method from the trait
-        $skin = self::getSkin();
-        $entity = new HerobrineEntity($sender->getLocation(), $skin);
-        $entity->spawnToAll();
-        $sender->sendMessage("Herobrine entity created!");
+        switch ($args[0]) {
+            case "help":
+                $sender->sendMessage("/herobrine help");
+                $sender->sendMessage("/herobrine kill [null:world]");
+                $sender->sendMessage("/herobrine killall");
+                $sender->sendMessage("/herobrine spawn");
+                break;
+            case "clear":
+                if (!isset($args[1])) {
+                    $sender->sendMessage("Usage: /herobrine clear [world]");
+                    return false;
+                }
+
+                $world = Server::getInstance()->getWorldManager()->getWorldByName($sender->getWorld()->getFolderName());
+                foreach ($world->getEntities() as $entity) {
+                    if ($entity instanceof HerobrineEntity) {
+                        $entity->kill();
+                        $sender->sendMessage("Herobrine cleared successfully");
+                    }
+                }
+                break;
+        }
+
         return true;
     }
 

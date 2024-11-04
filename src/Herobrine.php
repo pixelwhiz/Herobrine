@@ -28,7 +28,9 @@ namespace pixelwhiz\herobrine;
 use pixelwhiz\herobrine\commands\HerobrineCommands;
 use pixelwhiz\herobrine\entity\HerobrineEntity;
 use pixelwhiz\herobrine\entity\HerobrineHead;
+use pixelwhiz\herobrine\entity\SkullEntity;
 use pixelwhiz\herobrine\sessions\EntityManager;
+use pixelwhiz\herobrine\sessions\EntitySession;
 use pixelwhiz\herobrine\sessions\EntitySessionHandler;
 use pocketmine\entity\EntityDataHelper;
 use pocketmine\entity\EntityFactory;
@@ -53,12 +55,7 @@ class Herobrine extends PluginBase{
         $this->registerEntities();
         $this->registerSessions();
         $this->copySkinToDataFolder();
-        if (!Server::getInstance()->getWorldManager()->isWorldLoaded("flat")) {
-            $this->getServer()->getWorldManager()->loadWorld("flat");
-        }
-        foreach (Server::getInstance()->getWorldManager()->getWorldByName("flat")->getEntities() as $entity) {
-            $entity->kill();
-        }
+
         $this->getServer()->getCommandMap()->register("herobrine", new HerobrineCommands($this));
     }
 
@@ -70,6 +67,10 @@ class Herobrine extends PluginBase{
         EntityFactory::getInstance()->register(HerobrineEntity::class, function (World $world, CompoundTag $nbt): HerobrineEntity {
             return new HerobrineEntity(EntityDataHelper::parseLocation($nbt, $world), $this->getSkin(), $nbt);
         }, ["Herobrine"]);
+
+        EntityFactory::getInstance()->register(SkullEntity::class, function (World $world, CompoundTag $nbt): SkullEntity {
+            return new SkullEntity(EntityDataHelper::parseLocation($nbt, $world), null, $nbt);
+        }, ["SkullEntity"]);
     }
 
     private function registerSessions() : void {
