@@ -32,9 +32,14 @@ use pixelwhiz\herobrine\utils\Sound;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\block\utils\MobHeadType;
 use pocketmine\block\VanillaBlocks;
-use pocketmine\entity\Entity;
 use pocketmine\entity\Human;
 use pocketmine\entity\Location;
+use pocketmine\entity\object\ExperienceOrb;
+use pocketmine\entity\object\FallingBlock;
+use pocketmine\entity\object\ItemEntity;
+use pocketmine\entity\object\Painting;
+use pocketmine\entity\object\PaintingMotive;
+use pocketmine\entity\object\PrimedTNT;
 use pocketmine\entity\Skin;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
@@ -124,6 +129,12 @@ class HerobrineEntity extends Human {
             $this->look();
             $this->normalAttack();
 
+//            $this->doNormalBehavior();
+//            if ($this->doNormalBehavior()) {
+//                $path = $this->findPath();
+//                $this->move($path["x"], $path["y"], $path["z"]);
+//            }
+
             $this->doRandomTeleport();
 
             if (!$this->isInGame) {
@@ -182,7 +193,8 @@ class HerobrineEntity extends Human {
             $source->getCause() === EntityDamageEvent::CAUSE_FIRE_TICK ||
             $source->getCause() === EntityDamageEvent::CAUSE_LAVA ||
             $source->getCause() === EntityDamageEvent::CAUSE_ENTITY_EXPLOSION ||
-            $source->getCause() === EntityDamageEvent::CAUSE_BLOCK_EXPLOSION
+            $source->getCause() === EntityDamageEvent::CAUSE_BLOCK_EXPLOSION ||
+            $source->getCause() === EntityDamageEvent::CAUSE_FALL
         ) {
             $source->cancel();
             return;
@@ -234,7 +246,11 @@ class HerobrineEntity extends Human {
 
             if($distance < $closestDistance && $distance <= $maxDistance) {
                 if (!$entity instanceof HerobrineEntity and !$entity instanceof SkullEntity and !$entity instanceof HerobrineHead) {
-                    if ($entity instanceof Player && (!$entity->getGamemode()->equals(GameMode::SURVIVAL()) || $entity->getGamemode()->equals(GameMode::ADVENTURE()))) return ['entity' => null, 'distance' => PHP_INT_MAX];
+
+                    if ($entity instanceof Player and $entity->getGamemode() === GameMode::CREATIVE or
+                        $entity instanceof Player and $entity->getGamemode() === GameMode::SPECTATOR or
+                        $entity instanceof ExperienceOrb or $entity instanceof FallingBlock or $entity instanceof ItemEntity or $entity instanceof Painting or $entity instanceof PaintingMotive or $entity instanceof PrimedTNT
+                    ) continue;
 
                     $nearestEntity = $entity;
                     $closestDistance = $distance;

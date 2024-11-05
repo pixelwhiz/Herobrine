@@ -35,10 +35,13 @@ use pocketmine\network\mcpe\protocol\AddActorPacket;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
 use pocketmine\network\mcpe\protocol\types\entity\PropertySyncData;
+use pocketmine\player\GameMode;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\world\particle\BlockBreakParticle;
 use pocketmine\world\sound\ExplodeSound;
+use pocketmine\world\World;
+use function PHPUnit\Framework\assertInstanceOf;
 
 trait EntityAbilitiesTrait {
 
@@ -97,21 +100,28 @@ trait EntityAbilitiesTrait {
         $nearestEntity = $this->getNearestEntity(5)['entity'];
         $closestDistance = $this->getNearestEntity(5)['distance'];
 
-        if ($nearestEntity !== null) {
+        if ($nearestEntity !== null or
+            $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::SURVIVAL or
+            $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::ADVENTURE
+        ) {
             $direction = $nearestEntity->getLocation()->subtract($this->getLocation()->x, $this->getLocation()->y, $this->getLocation()->z)->normalize()->multiply(0.3);
             $this->move($direction->getX(), $direction->getY(), $direction->getZ());
 
-            if($closestDistance <= 2.5){
+            if($closestDistance <= 2.25){
                 $damageEvent = new EntityDamageEvent($nearestEntity, EntityDamageEvent::CAUSE_ENTITY_ATTACK, 5);
                 $nearestEntity->attack($damageEvent);
-                if ($nearestEntity instanceof Player) $nearestEntity->knockBack(mt_rand(-1, 1), mt_rand(-1, 1));
+                $nearestEntity->knockBack($this->getDirectionVector()->getX(), $this->getDirectionVector()->getZ());
             }
         }
     }
 
     public function shoot() : void {
         $nearestEntity = $this->getNearestEntity(35)["entity"];
-        if ($nearestEntity instanceof Entity or $nearestEntity instanceof Player) {
+        if ($nearestEntity !== null and
+            $nearestEntity instanceof Entity or $nearestEntity instanceof Player or
+            $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::SURVIVAL or
+            $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::ADVENTURE
+        ) {
             $pos = $this->getLocation()->add(0, 1, 0);
             $world = $this->getWorld();
 
@@ -131,9 +141,12 @@ trait EntityAbilitiesTrait {
 
     public function doRandomTeleport() : void {
         $chanceToDo = mt_rand(0, 100);
+        $radius = 15;
         $nearestEntity = $this->getNearestEntity(35)["entity"];
 
-        if ($chanceToDo <= 5 and $nearestEntity instanceof Entity || $nearestEntity instanceof Player) {
+        if ($chanceToDo <= 5 and
+            $nearestEntity instanceof Entity || $nearestEntity instanceof Player
+        ) {
             $world = $nearestEntity->getWorld();
             $isAllAir = true;
             for ($i = 1; $i <= 2; $i++) {
@@ -150,21 +163,19 @@ trait EntityAbilitiesTrait {
                 $chanceToTeleport = mt_rand(0, 100);
 
                 if ($chanceToTeleport <= 100 and $chanceToTeleport > 75) {
-                    $chanceVector = mt_rand(1, 4);
-                    switch ($chanceVector) {
-                        case 1:
-                            $this->teleport($nearestEntity->getLocation()->subtract(mt_rand(5, 15), 0, mt_rand(5, 15))->floor());
-                            break;
-                        case 2:
-                            $this->teleport($nearestEntity->getLocation()->add(mt_rand(5, 15), 0, mt_rand(5, 15))->floor());
-                            break;
-                        case 3:
-                            $this->teleport($nearestEntity->getLocation()->subtract(mt_rand(5, 15), 0, 0)->add(0, 0, mt_rand(5, 15))->floor());
-                            break;
-                        case 4:
-                            $this->teleport($nearestEntity->getLocation()->add(mt_rand(5, 15), 0, 0)->subtract(0, 0, mt_rand(5, 15))->floor());
-                            break;
+                    $offsetX = mt_rand(-$radius, $radius);
+                    $offsetZ = mt_rand(-$radius, $radius);
+
+                    $targetX = $nearestEntity->getLocation()->getX() + $offsetX;
+                    $targetY = $nearestEntity->getLocation()->getY();
+                    $targetZ = $nearestEntity->getLocation()->getZ() + $offsetZ;
+
+                    $targetPosition = new Vector3($targetX, $targetY, $targetZ);
+
+                    if ($this->isSafeLocation($world, $targetPosition)) {
+                        $this->teleport($targetPosition->floor());
                     }
+
                 }
 
                 if ($chanceToTeleport <= 25 and $chanceToTeleport > 20) {
@@ -172,24 +183,58 @@ trait EntityAbilitiesTrait {
                     $this->sendLightning($this);
                 }
 
-                if ($chanceToTeleport <= 5 and $chanceToTeleport >= 0) {
-                    $this->teleport($nearestEntity->getLocation());
+                if ($chanceToTeleport <= 50 and $chanceToTeleport >= 48) {
+                    $this->teleport($nearestEntity->getLocation()->floor());
                 }
             }
 
         }
     }
 
+    private function isSafeLocation(World $world, Vector3 $position): bool {
+        for ($i = 0; $i < 5; $i++) {
+            $blockBelow = $world->getBlock($position->subtract(0, $i, 0));
+        }
 
-    public function doNormalBehavior(): void {
+        if ($blockBelow->getTypeId() === VanillaBlocks::AIR()->getTypeId()) {
+            return false;
+        }
+
+        if ($blockBelow->getTypeId() === VanillaBlocks::WATER()->getTypeId() or $blockBelow->getTypeId() === VanillaBlocks::LAVA()->getTypeId()) {
+            return false;
+        }
+
+        $blockAtTarget = $world->getBlock($position);
+        $blockAbove = $world->getBlock($position->add(0, 1, 0));
+
+        return $blockAtTarget->getTypeId() === VanillaBlocks::AIR()->getTypeId() &&
+            $blockAbove->getTypeId() === VanillaBlocks::AIR()->getTypeId();
+    }
+
+    public function doNormalBehavior(): bool {
+        $entity = $this->getNearestEntity(35)["entity"];
         $chancesToMove = mt_rand(0, 100);
         if ($chancesToMove <= 100 and $chancesToMove > 50) {
             $this->doRandomTeleport();
         }
 
         if ($chancesToMove === 50) {
-            $this->lookAt();
+            return true;
         }
+
+        return false;
+    }
+
+    public function findPath(): array {
+        $path = ["x" => 0, "y" => 0, "z" => 0];
+
+        $offsetX = mt_rand(-15, 15);
+        $offsetY = mt_rand(-15, 15);
+        $offsetZ = mt_rand(-15, 15);
+
+
+
+        return $path;
     }
 
 }

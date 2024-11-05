@@ -109,7 +109,6 @@ trait EntitySession {
 
         if ($entity->isAlive() and $entity->gameSession === 0) {
             $entity->shoot();
-            Sound::playSound($entity, Sound::MOB_WITHER_AMBIENT);
             $entity->gameSession = 20;
         } else {
             $entity->isInGame = false;

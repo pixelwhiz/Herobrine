@@ -13,6 +13,7 @@ use pocketmine\entity\projectile\Projectile;
 use pocketmine\math\RayTraceResult;
 use pocketmine\math\Vector3;
 use pocketmine\network\mcpe\protocol\types\entity\EntityIds;
+use pocketmine\player\Player;
 use pocketmine\world\Explosion;
 use pocketmine\world\particle\ExplodeParticle;
 use pocketmine\world\particle\HugeExplodeParticle;
@@ -45,9 +46,12 @@ class SkullEntity extends Projectile {
         $this->kill();
         $pos = $this->getPosition();
         $explosion = new Explosion($pos, 3);
-        $explosion->explodeA();
+        $explosion->explodeB();
         $this->getWorld()->addParticle($pos, new ExplodeParticle(), $this->getWorld()->getPlayers());
         $this->getWorld()->addSound($pos, new ExplodeSound(), $this->getWorld()->getPlayers());
+        if ($entityHit instanceof Player) {
+            $entityHit->knockBack($this->getDirectionVector()->getX(), $this->getDirectionVector()->getZ());
+        }
         parent::onHitEntity($entityHit, $hitResult);
     }
 
@@ -67,8 +71,8 @@ class SkullEntity extends Projectile {
         }
 
         $explosion = new Explosion($pos, 3);
-        $explosion->explodeA();
-        $this->getWorld()->addParticle($pos, new ExplodeParticle(), $this->getWorld()->getPlayers());
+        $explosion->explodeB();
+        $this->getWorld()->addParticle($pos, new HugeExplodeParticle(), $this->getWorld()->getPlayers());
         $this->getWorld()->addSound($pos, new ExplodeSound(), $this->getWorld()->getPlayers());
         parent::onHitBlock($blockHit, $hitResult);
     }
