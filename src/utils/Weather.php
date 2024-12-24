@@ -25,33 +25,10 @@ namespace pixelwhiz\herobrine\utils;
 
 use pocketmine\network\mcpe\protocol\LevelEventPacket;
 use pocketmine\network\mcpe\protocol\types\LevelEvent;
-use pocketmine\Server;
 use pocketmine\world\World;
 
 class Weather {
-
-    public static array $time = [];
-
-    /**
-     * @TODO: saveTime() when SPAWN_PHASE()
-     * @param World $world
-     * @return bool
-     */
-    public static function saveTime(World $world) : bool {
-        if (self::$time[$world->getFolderName()] = $world->getTime()) return true;
-        return false;
-    }
-
-    /**
-     * @TODO: Reset time to Default where $time has saved at SPAWN_PHASE()
-     * @param World $world
-     * @return void
-     */
-    public static function resetTime(World $world) {
-        $time = self::$time[$world->getFolderName()] ?? 0;
-        $world->setTime($time);
-    }
-
+    
     /**
      * @TODO: Generate thunder bolt
      * @param World $world
@@ -68,7 +45,6 @@ class Weather {
             }
         }
     }
-
 
     /**
      *

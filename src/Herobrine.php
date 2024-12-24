@@ -30,7 +30,6 @@ use pixelwhiz\herobrine\entity\HerobrineEntity;
 use pixelwhiz\herobrine\entity\HerobrineHead;
 use pixelwhiz\herobrine\entity\SkullEntity;
 use pixelwhiz\herobrine\sessions\EntityManager;
-use pixelwhiz\herobrine\sessions\EntitySession;
 use pixelwhiz\herobrine\sessions\EntitySessionHandler;
 use pocketmine\entity\EntityDataHelper;
 use pocketmine\entity\EntityFactory;
@@ -43,7 +42,7 @@ class Herobrine extends PluginBase{
 
     use EntityManager;
     public static self $instance;
-
+    
     public static function getInstance() : self {
         return self::$instance;
     }
@@ -57,6 +56,40 @@ class Herobrine extends PluginBase{
         $this->copySkinToDataFolder();
 
         $this->getServer()->getCommandMap()->register("herobrine", new HerobrineCommands($this));
+    }
+    
+    protected function onDisable(): void
+    {
+
+        foreach (Server::getInstance()->getWorldManager()->getWorlds() as $world) {
+            $positions = [];
+
+            foreach ($world->getEntities() as $entity) {
+                if ($entity instanceof HerobrineEntity) {
+                    $worldName = $entity->getWorld()->getFolderName();
+                    $x = $entity->getLocation()->getX();
+                    $y = $entity->getLocation()->getY();
+                    $z = $entity->getLocation()->getZ();
+
+                    $positions[] = [
+                        'world' => $worldName,
+                        'x' => $x,
+                        'y' => $y,
+                        'z' => $z
+                    ];
+                }
+            }
+
+            $dataFolder = $this->getDataFolder() . "data/";
+            if (!is_dir($dataFolder)) {
+                mkdir($dataFolder, 0755, true);
+            }
+            $filePath = $dataFolder . "position.json";
+
+            file_put_contents($filePath, json_encode($positions, JSON_PRETTY_PRINT));
+        }
+        
+        parent::onDisable();
     }
 
     private function registerEntities() : void {
@@ -96,5 +129,22 @@ class Herobrine extends PluginBase{
     }
 
 
+    public function getEntityByWorld(World $world): ?HerobrineEntity {
+        foreach ($world->getEntities() as $entities) {
+            if ($entities instanceof HerobrineEntity) {
+                return $entities;
+            }
+        }
+        return null;
+    }
+
+    public function isEntityExists(World $world): bool {
+        foreach ($world->getEntities() as $entities) {
+            if ($entities instanceof HerobrineEntity or $entities instanceof HerobrineHead) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

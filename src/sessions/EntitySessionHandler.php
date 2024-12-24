@@ -25,20 +25,18 @@ namespace pixelwhiz\herobrine\sessions;
 
 use pixelwhiz\herobrine\entity\HerobrineEntity;
 use pixelwhiz\herobrine\entity\HerobrineHead;
+use pixelwhiz\herobrine\Herobrine;
 use pixelwhiz\herobrine\utils\Weather;
-use pocketmine\block\Block;
 use pocketmine\block\MobHead;
 use pocketmine\block\utils\MobHeadType;
-use pocketmine\block\VanillaBlocks;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\entity\EntityTeleportEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
+use pocketmine\event\world\WorldUnloadEvent;
 use pocketmine\item\VanillaItems;
 use pixelwhiz\herobrine\utils\BlockPattern;
 use pocketmine\player\GameMode;
-use pocketmine\player\Player;
-use pocketmine\Server;
 
 class EntitySessionHandler implements Listener {
 
@@ -63,6 +61,50 @@ class EntitySessionHandler implements Listener {
         }
     }
 
+    public function onTeleport(EntityTeleportEvent $event) {
+        $entity = $event->getEntity();
+        $to = $event->getTo();
+
+        $hb = Herobrine::getInstance()->getEntityByWorld($entity->getWorld());
+        if ($hb instanceof HerobrineEntity) {
+            if ($hb->getWorld()->getFolderName() !== $to->getWorld()->getFolderName()) {
+                $hb->bar->removePlayer($entity);
+                Weather::clear($entity->getWorld());
+            }
+        }
+    }
+
+    public function onUnload(WorldUnloadEvent $event): void
+    {
+        $world = $event->getWorld();
+        $positions = [];
+
+        foreach ($world->getEntities() as $entity) {
+            if ($entity instanceof HerobrineEntity) {
+                $worldName = $entity->getWorld()->getFolderName();
+                $x = $entity->getLocation()->getX();
+                $y = $entity->getLocation()->getY();
+                $z = $entity->getLocation()->getZ();
+
+                $positions[] = [
+                    'world' => $worldName,
+                    'x' => $x,
+                    'y' => $y,
+                    'z' => $z
+                ];
+            }
+        }
+
+        $dataFolder = Herobrine::getInstance()->getDataFolder() . "data/";
+        if (!is_dir($dataFolder)) {
+            mkdir($dataFolder, 0755, true);
+        }
+        $filePath = $dataFolder . "position.json";
+
+        file_put_contents($filePath, json_encode($positions, JSON_PRETTY_PRINT));
+    }
+
+
     public function onInteract(PlayerInteractEvent $event) {
         $player = $event->getPlayer();
         $action = $event->getAction();
@@ -82,13 +124,16 @@ class EntitySessionHandler implements Listener {
 
                 $this->lastClickTime = $currentTime;
 
-                if (BlockPattern::trySpawnFromPattern($player, $block)) {
-                    $this->spawnSession($block->getPosition());
-                    Weather::saveTime($player->getWorld());
-                    if ($player->getGamemode() !== GameMode::CREATIVE()) {
-                        $item->setCount($item->getCount() - 1);
-                        $player->getInventory()->setItemInHand($item);
+                if (!Herobrine::getInstance()->isEntityExists($player->getWorld())) {
+                    if (BlockPattern::trySpawnFromPattern($player, $block)) {
+                        $this->spawnSession($block->getPosition());
+                        if ($player->getGamemode() !== GameMode::CREATIVE()) {
+                            $item->setCount($item->getCount() - 1);
+                            $player->getInventory()->setItemInHand($item);
+                        }
                     }
+                } else {
+                    $player->sendMessage("§eAnother herobrine already exists in this world, kill it first. Please use §c/hb position §eto track position");
                 }
             }
         }

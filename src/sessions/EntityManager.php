@@ -29,12 +29,7 @@ use pixelwhiz\herobrine\Herobrine;
 use pocketmine\entity\Skin;
 use pocketmine\item\Item;
 use pocketmine\item\VanillaItems;
-use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
-use pocketmine\nbt\tag\DoubleTag;
-use pocketmine\nbt\tag\FloatTag;
-use pocketmine\nbt\tag\ListTag;
-use pocketmine\world\Position;
 
 trait EntityManager {
 

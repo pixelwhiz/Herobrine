@@ -23,10 +23,7 @@
 
 namespace pixelwhiz\herobrine\utils;
 
-use Brick\Math\BigInteger;
-use pixelwhiz\herobrine\entity\HerobrineEntity;
 use pocketmine\block\Block;
-use pocketmine\block\BlockTypeIds;
 use pocketmine\block\MobHead;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\event\block\BlockBreakEvent;
@@ -137,9 +134,6 @@ class BlockPattern {
 
         foreach ($blocks as $block) {
             if ($block instanceof Block) {
-
-                // TODO: Replace block to AIR
-
                 $world->addParticle($block->getPosition(), new BlockBreakParticle($block), $world->getPlayers());
                 $world->setBlock($block->getPosition(), VanillaBlocks::AIR());
             }

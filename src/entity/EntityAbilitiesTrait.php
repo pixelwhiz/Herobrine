@@ -25,8 +25,13 @@ namespace pixelwhiz\herobrine\entity;
 
 use pixelwhiz\herobrine\utils\Sound;
 use pixelwhiz\herobrine\utils\Weather;
+use pocketmine\block\Block;
+use pocketmine\block\Liquid;
 use pocketmine\block\VanillaBlocks;
+use pocketmine\block\Water;
+use pocketmine\entity\animation\ArmSwingAnimation;
 use pocketmine\entity\Entity;
+use pocketmine\entity\Living;
 use pocketmine\entity\Location;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\math\Vector3;
@@ -66,49 +71,122 @@ trait EntityAbilitiesTrait {
     }
 
     public function handleWeather() : void {
-        foreach (Server::getInstance()->getOnlinePlayers() as $player) {
-            if ($this->getWorld()->getFolderName() === $player->getWorld()->getFolderName()) {
-                Weather::thunder($this->getWorld());
-            } else {
-                Weather::clear($player->getWorld());
-                $this->bar->removePlayer($player);
+        if (
+            $this->getPhase() === $this->PHASE_START() or
+            $this->getPhase() === $this->PHASE_GAME()
+        ) {
+            foreach (Server::getInstance()->getOnlinePlayers() as $player) {
+                if ($this->getWorld()->getFolderName() === $player->getWorld()->getFolderName()) {
+                    Weather::thunder($this->getWorld());
+                } else {
+                    Weather::clear($player->getWorld());
+                    $this->bar->removePlayer($player);
+                }
             }
         }
     }
 
     public function handleBossBar() : void {
-        foreach ($this->getWorld()->getPlayers() as $player) {
+        if (
+            $this->getPhase() === $this->PHASE_START() or
+            $this->getPhase() === $this->PHASE_GAME()
+        ) {
+            foreach ($this->getWorld()->getPlayers() as $player) {
+                if ($this->getLocation()->distance($player->getLocation()->asVector3()) < 35) {
+                    $this->bar->addPlayer($player);
+                } else {
+                    $this->bar->removePlayer($player);
+                }
+            }
+        }
+    }
 
-            if ($this->getLocation()->distance($player->getLocation()->asVector3()) < 35) {
-                $this->bar->addPlayer($player);
-            } else {
-                $this->bar->removePlayer($player);
+    public function sneak(): void {
+        $nearestEntity = $this->getNearestEntity(35)["entity"];
+        if (!$this->isValidTarget($nearestEntity)) {
+
+            $chanceToSneak = mt_rand(0, 100);
+            if ($chanceToSneak === 50) {
+                $this->setSneaking(true);
+            }
+
+            if ($chanceToSneak === 25) {
+                $this->setSneaking(false);
+            }
+
+        } else {
+            $this->setSneaking(false);
+        }
+    }
+
+    public function randomMove(): void {
+        $nearestEntity = $this->getNearestEntity(35)['entity'];
+
+        if ($this->getWorld()->getBlock($this->getPosition()->add(0, 2, 0)) instanceof Liquid) {
+            $this->setSwimming(true);
+            $this->doRandomTeleport();
+        } else {
+            $this->setSwimming(false);
+        }
+
+        if ($this->getWorld()->getBlock($this->getLocation()->add(0, 1, 0)) instanceof Liquid) {
+            $this->jump();
+            $this->doRandomTeleport();
+        }
+
+        if (!$this->isValidTarget($nearestEntity)) {
+            $chanceToMove = mt_rand(0, 100);
+
+            if ($chanceToMove <= 5) {
+                $blockInFront = $this->getWorld()->getBlock($this->getLocation()->addVector($this->getDirectionVector())->floor());
+
+                if (!$blockInFront->isTransparent() && $blockInFront->isSolid()) {
+                    $this->setMotion(new Vector3(0, 0.5, 0));
+                    $this->move($this->getDirectionVector()->getX(), $this->getDirectionVector()->getY(), $this->getDirectionVector()->getZ());
+                }
+
+                $this->move($this->getDirectionVector()->getX(), $this->getDirectionVector()->getY(), $this->getDirectionVector()->getZ());
             }
         }
     }
 
     public function look(): void {
         $nearestEntity = $this->getNearestEntity(35)['entity'];
-        if ($nearestEntity !== null) {
-            if ($nearestEntity instanceof Entity || $nearestEntity instanceof Player) {
-                $this->lookAt($nearestEntity->getLocation());
+        if ($this->isValidTarget($nearestEntity)) {
+            $this->lookAt($nearestEntity->getLocation()->add(0, 1, 0));
+        } else {
+            $chanceToLook = mt_rand(0, 100);
+
+            if (
+                $chanceToLook === 50 and
+                $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::CREATIVE
+            ) {
+                $this->lookAt($nearestEntity->getLocation()->add(0, 1, 0));
+            }
+
+            if ($chanceToLook <= 25 && $chanceToLook > 24) {
+                $randomX = $this->getLocation()->getX() + mt_rand(-10, 10);
+                $randomY = $this->getLocation()->getY() + mt_rand(-5, 5);
+                $randomZ = $this->getLocation()->getZ() + mt_rand(-10, 10);
+
+                $randomLocation = new Vector3($randomX, $randomY, $randomZ);
+                $this->lookAt($randomLocation);
             }
         }
     }
+
 
     public function normalAttack() : void {
         $nearestEntity = $this->getNearestEntity(5)['entity'];
         $closestDistance = $this->getNearestEntity(5)['distance'];
 
-        if ($nearestEntity !== null or
-            $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::SURVIVAL or
-            $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::ADVENTURE
-        ) {
+        if ($this->isValidTarget($nearestEntity)) {
             $direction = $nearestEntity->getLocation()->subtract($this->getLocation()->x, $this->getLocation()->y, $this->getLocation()->z)->normalize()->multiply(0.3);
             $this->move($direction->getX(), $direction->getY(), $direction->getZ());
 
             if($closestDistance <= 2.25){
                 $damageEvent = new EntityDamageEvent($nearestEntity, EntityDamageEvent::CAUSE_ENTITY_ATTACK, 5);
+                $this->broadcastAnimation(new ArmSwingAnimation($this));
                 $nearestEntity->attack($damageEvent);
                 $nearestEntity->knockBack($this->getDirectionVector()->getX(), $this->getDirectionVector()->getZ());
             }
@@ -116,12 +194,8 @@ trait EntityAbilitiesTrait {
     }
 
     public function shoot() : void {
-        $nearestEntity = $this->getNearestEntity(35)["entity"];
-        if ($nearestEntity !== null and
-            $nearestEntity instanceof Entity or $nearestEntity instanceof Player or
-            $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::SURVIVAL or
-            $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::ADVENTURE
-        ) {
+        $nearestEntity = $this->getNearestEntity(35)['entity'];
+        if ($this->isValidTarget($nearestEntity)) {
             $pos = $this->getLocation()->add(0, 1, 0);
             $world = $this->getWorld();
 
@@ -144,9 +218,7 @@ trait EntityAbilitiesTrait {
         $radius = 15;
         $nearestEntity = $this->getNearestEntity(35)["entity"];
 
-        if ($chanceToDo <= 5 and
-            $nearestEntity instanceof Entity || $nearestEntity instanceof Player
-        ) {
+        if ($chanceToDo <= 5 and $this->isValidTarget($nearestEntity)) {
             $world = $nearestEntity->getWorld();
             $isAllAir = true;
             for ($i = 1; $i <= 2; $i++) {
@@ -191,7 +263,8 @@ trait EntityAbilitiesTrait {
         }
     }
 
-    private function isSafeLocation(World $world, Vector3 $position): bool {
+    private function isSafeLocation(World $world, Vector3 $position): bool
+    {
         for ($i = 0; $i < 5; $i++) {
             $blockBelow = $world->getBlock($position->subtract(0, $i, 0));
         }
@@ -211,30 +284,14 @@ trait EntityAbilitiesTrait {
             $blockAbove->getTypeId() === VanillaBlocks::AIR()->getTypeId();
     }
 
-    public function doNormalBehavior(): bool {
-        $entity = $this->getNearestEntity(35)["entity"];
-        $chancesToMove = mt_rand(0, 100);
-        if ($chancesToMove <= 100 and $chancesToMove > 50) {
-            $this->doRandomTeleport();
-        }
-
-        if ($chancesToMove === 50) {
+    public function isValidTarget(?Entity $nearestEntity = null): bool {
+        if ($nearestEntity instanceof Entity and !$nearestEntity instanceof Player or
+            $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::SURVIVAL or
+            $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::ADVENTURE
+        ) {
             return true;
         }
-
         return false;
-    }
-
-    public function findPath(): array {
-        $path = ["x" => 0, "y" => 0, "z" => 0];
-
-        $offsetX = mt_rand(-15, 15);
-        $offsetY = mt_rand(-15, 15);
-        $offsetZ = mt_rand(-15, 15);
-
-
-
-        return $path;
     }
 
 }

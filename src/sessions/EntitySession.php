@@ -31,7 +31,12 @@ use pixelwhiz\herobrine\utils\Sound;
 use pixelwhiz\herobrine\utils\Weather;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\entity\Location;
-use pocketmine\player\Player;
+use pocketmine\item\Item;
+use pocketmine\math\Vector3;
+use pocketmine\network\mcpe\protocol\types\BlockPosition;
+use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataFlags;
+use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
+use pocketmine\utils\TextFormat;
 use pocketmine\world\particle\BlockBreakParticle;
 use pocketmine\world\Position;
 use pocketmine\world\sound\ExplodeSound;
@@ -57,8 +62,6 @@ trait EntitySession {
 
         $entityHead = new HerobrineHead(Location::fromObject($pos->add(0.5, 0, 0.5), $world), $this->getSkin());
 
-        $world->setTime(18000);
-
         $nearestPlayer = null;
         foreach ($entityHead->getWorld()->getPlayers() as $player) {
             $distance = $entityHead->getPosition()->distance($player->getPosition()->asVector3());
@@ -80,21 +83,31 @@ trait EntitySession {
     public function startSession(HerobrineEntity $entity): bool {
         $pos = $entity->getPosition();
         $world = $entity->getWorld();
+        $entity->setPhase($this->PHASE_START());
 
-        if ($entity->startTime <= 20 * 10 && $this->startTime >= 20 * 1) {
-            $entity->setPhase($this->PHASE_START());
-        }
-
-        if ($this->startTime > 20 * 1 and $entity->startSession === 0) {
+        if ($entity->startTime === 0) {
             Sound::playSound($entity, Sound::MOB_WITHER_SPAWN);
-            $entity->startSession = 20;
+            if (!isset($entity->spawnPosition)) {
+                $entity->spawnPosition = [
+                    "x" => $entity->getLocation()->getX(),
+                    "y" => $entity->getLocation()->getY() - 1,
+                    "z" => $entity->getLocation()->getZ()
+                ];
+            }
+
+            if (isset($entity->spawnPosition["x"]) and isset($entity->spawnPosition["y"]) and isset($entity->spawnPosition["z"])) {
+                $position = $entity->spawnPosition;
+                $entity->teleport(new Vector3($position["x"], $position["y"], $position["z"]));
+            }
+
+            $entity->startTime = 20;
         }
 
-        if ($this->startTime === 20 * 1) {
+        if ($this->bar->getPercentage() === 1.0) {
             $world->addSound($pos, new ExplodeSound(), $world->getPlayers());
 
             BlockPattern::clearPattern($world, $pos);
-            $entity->sendLightning($entity);
+            $entity->sendLightning();
 
             $entity->setFireTicks(0);
             $entity->setPhase($this->PHASE_GAME());
@@ -107,16 +120,31 @@ trait EntitySession {
         $entity->setPhase($this->PHASE_GAME());
         $entity->isInGame = true;
 
-        if ($entity->isAlive() and $entity->gameSession === 0) {
+        if ($entity->isAlive() and $entity->gameTime === 0) {
             $entity->shoot();
-            $entity->gameSession = 20;
+            $entity->gameTime = 20;
         } else {
             $entity->isInGame = false;
         }
         return true;
     }
 
-    public function endSession(): void {
+    public function endSession(HerobrineEntity $entity): void {
+        if ($entity->endTime === 0) {
+            $entity->kill();
+        }
+
+        $pos = $this->getPosition()->add(0, -0.3, 0);
+        $this->getNetworkProperties()->setFloat(EntityMetadataProperties::BOUNDING_BOX_HEIGHT, 0.2);
+        $this->getNetworkProperties()->setBlockPos(EntityMetadataProperties::PLAYER_BED_POSITION, new BlockPosition($pos->getFloorX(), $pos->getFloorY(), $pos->getFloorZ()));
+        $this->getNetworkProperties()->setGenericFlag(EntityMetadataFlags::SLEEPING, true);
+
+        $this->setCanSaveWithChunk(true);
+
+        $this->setPhase($this->PHASE_END());
+        $this->setNameTag(TextFormat::YELLOW . "Ends in: ". TextFormat::AQUA . gmdate("i:s", intval($entity->endTime / 20)));
+        $entity->setScoreTag("Get Rewards\n". TextFormat::GRAY ."Click to Open");
+
     }
 
 }

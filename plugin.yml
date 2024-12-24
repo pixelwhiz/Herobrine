@@ -4,9 +4,29 @@ version: 0.0.1
 main: pixelwhiz\herobrine\Herobrine
 api: 5.0.0
 src-namespace-prefix: pixelwhiz\herobrine
+author: pixelwhiz
+description: A powerful and versatile plugin for managing and controlling herobrines.
 
 permissions:
-  herobrine.cmd:
+  herobrine.command:
     description: Allows users to use the Herobrine plugin.
+    default: op
+  herobrine.command.help:
+    description: Allows users to get help with the Herobrine plugin.
+    default: true
+  herobrine.command.spawn:
+    description: Allows users to spawn a herobrine
+    default: op
+  herobrine.command.position:
+    description: Allows users to get or set the position of a herobrine
+    default: true
+  herobrine.command.tphere:
+    description: Allows users to teleport a herobrine to your position
+    default: op
+  herobrine.command.teleport:
+    descriotion: Allows users to teleport
+    default: op
+  herobrine.command.kill:
+    description: Allows users to kill a herobrine
     default: op
 ...

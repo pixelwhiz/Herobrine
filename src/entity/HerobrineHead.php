@@ -71,8 +71,14 @@ class HerobrineHead extends Human {
                     $nearestPlayer = $player;
                 }
             }
+
             $yaw = $nearestPlayer !== null ? $nearestPlayer->getLocation()->getYaw() - 180 : 0;
             $entity->setRotation($yaw, 0);
+            $entity->spawnPosition = [
+                "x" => $entity->getLocation()->getX(),
+                "y" => $entity->getLocation()->getY() - 1,
+                "z" => $entity->getLocation()->getZ()
+            ];
             $entity->spawnToAll();
 
             $entity->sendLightning();
