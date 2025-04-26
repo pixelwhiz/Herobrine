@@ -36,7 +36,7 @@ class BlockPattern {
 
     /**
      *
-     * @description: Try spawn Entity() with some pattern including GOLD(), REDSTONE_TORCH() and REDSTONE_WIRE().
+     * @description: Try spawn Minecart() with some pattern including GOLD(), REDSTONE_TORCH() and REDSTONE_WIRE().
      * @priority: HIGH
      *
      */

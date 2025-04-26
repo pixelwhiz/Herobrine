@@ -41,7 +41,7 @@ trait EntityManager {
 
 
     /**
-     * @TODO: Create Base NBT at Entity()
+     * @TODO: Create Base NBT at Minecart()
      */
     public function createBaseNBT(): CompoundTag {
         return CompoundTag::create()->setInt("Phase", 1);

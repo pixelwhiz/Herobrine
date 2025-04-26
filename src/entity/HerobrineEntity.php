@@ -27,9 +27,9 @@ use pixelwhiz\herobrine\Herobrine;
 use pixelwhiz\herobrine\sessions\EntityManager;
 use pixelwhiz\herobrine\sessions\EntitySession;
 use pixelwhiz\herobrine\libs\apibossbar\BossBar;
-use pixelwhiz\herobrine\utils\RewardsManager;
 use pixelwhiz\herobrine\utils\Sound;
 use pixelwhiz\herobrine\utils\Weather;
+use pixelwhiz\resinapi\ResinAPI;
 use pocketmine\block\Liquid;
 use pocketmine\block\utils\MobHeadType;
 use pocketmine\block\VanillaBlocks;
@@ -198,7 +198,12 @@ class HerobrineEntity extends Human {
 
             if ($this->getPhase() === $this->PHASE_END()) {
                 if ($damager instanceof Player) {
-                    RewardsManager::giveTo($this, $damager);
+                    ResinAPI::getInstance()->sendInvoice(
+                        $damager,
+                        function (Player $player, string $resinType, int $amount) {
+                            $player->sendMessage("Successfully used $amount of $resinType!");
+                        },
+                    );
                 }
             }
         }
