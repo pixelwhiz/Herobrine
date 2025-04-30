@@ -36,13 +36,18 @@ use pocketmine\entity\EntityFactory;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\plugin\PluginBase;
 use pocketmine\Server;
+use pocketmine\utils\Config;
 use pocketmine\world\World;
 
 class Herobrine extends PluginBase{
 
     use EntityManager;
     public static self $instance;
-    
+
+    public RewardsManager $rewardsManager;
+
+    public Config $data;
+
     public static function getInstance() : self {
         return self::$instance;
     }
@@ -54,6 +59,11 @@ class Herobrine extends PluginBase{
         $this->registerEntities();
         $this->registerSessions();
         $this->copySkinToDataFolder();
+
+        $this->rewardsManager = new RewardsManager($this);
+        $this->rewardsManager->initialize();
+
+        $this->saveResource($this->getDataFolder(). "config.yml");
 
         $this->getServer()->getCommandMap()->register("herobrine", new HerobrineCommands($this));
     }

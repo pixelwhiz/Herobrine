@@ -1,39 +1,15 @@
+rewards-key: null
 rewards:
-
-  command:
-    - "givemoney {player} 25000"
-
-  common:
-    "apple":
-      min: 1
-      max: 5
-    "stick":
-      min: 1
-      max: 5
-    "book":
-      min: 1
-      max: 5
-    "oak_wood":
-      min: 32
-      max: 64
-    "water_bucket":
-      min: 1
-      max: 5
-      rarity: 20
-
-  rare:
-    "diamond_ingot":
-      min: 20
-      max: 30
-      rarity: 20
-    "gold_ingot":
-      min: 20
-      max: 30
-
-  legendary:
-    "diamond_sword":
-      enchantments: ["knockback" => 1, "sharpness" => 2]
-      rarity: 100
-    "diamond_hoe":
-      enchantments: ["efficiency" => 1, "silk_touch" => 1]
-      rarity: 100
+  - item: diamond
+    name: default
+    enchantments:
+      - "Effeciency": 5
+    lore: [ "" ]
+  - item: diamond_sword
+    name: "Legend Sword"
+    enchantments: [ "" ]
+    lore: [ "" ]
+  - item: diamond_sword
+    name: "Legend Sword"
+    enchantments: [ "" ]
+    lore: [ "" ]

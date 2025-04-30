@@ -23,6 +23,7 @@
 
 namespace pixelwhiz\herobrine\commands;
 
+use muqsit\invmenu\InvMenu;
 use pixelwhiz\herobrine\entity\HerobrineEntity;
 use pixelwhiz\herobrine\Herobrine;
 use pixelwhiz\herobrine\sessions\EntityManager;
@@ -71,7 +72,8 @@ class HerobrineCommands extends Command {
                     "§7- /hb spawn (Spawn herobrine on your location)\n".
                     "§7- /hb position (Get actual position of herobrine)\n".
                     "§7- /hb teleport (Teleport to herobrine position)\n".
-                    "§7- /hb kill (Kill herobrine in your world)\n"
+                    "§7- /hb kill (Kill herobrine in your world)\n".
+                    "§7- /hb rewards (Set reward after killing herobrine)\n"
                 );
                 break;
             case "spawn":
@@ -246,6 +248,16 @@ class HerobrineCommands extends Command {
                 }
 
                 $sender->sendMessage("§aKilled (".$entityCount.") herobrine at world ".$world->getFolderName()."");
+
+                break;
+
+            case "rewards":
+                if (!$sender->hasPermission("herobrine.command.rewards")) {
+                    $sender->sendMessage("§cYou do not have permission to use this command!");
+                    return false;
+                }
+
+                $this->plugin->rewardsManager->sendToPlayer($sender);
 
                 break;
         }

@@ -285,7 +285,7 @@ trait EntityAbilitiesTrait {
     }
 
     public function isValidTarget(?Entity $nearestEntity = null): bool {
-        if ($nearestEntity instanceof Entity and !$nearestEntity instanceof Player or
+        if (
             $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::SURVIVAL or
             $nearestEntity instanceof Player and $nearestEntity->getGamemode() === GameMode::ADVENTURE
         ) {

@@ -44,6 +44,7 @@ use pocketmine\entity\object\PrimedTNT;
 use pocketmine\entity\Skin;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\item\VanillaItems;
 use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\network\mcpe\protocol\types\entity\EntityMetadataProperties;
@@ -62,7 +63,8 @@ class HerobrineEntity extends Human {
     public int $phase = 0;
 
     public array $spawnPosition = [];
-    public array $playerReward = [];
+
+    public array $rewards = [];
 
     public bool $isInGame = false;
 
@@ -171,9 +173,10 @@ class HerobrineEntity extends Human {
     protected function initEntity(CompoundTag $nbt): void
     {
         parent::initEntity($nbt);
+        $this->setNameTagAlwaysVisible();
+        $this->setNameTagVisible();
 
         $this->phase = $nbt->getInt("Phase");
-
     }
 
     public function saveNBT(): CompoundTag
@@ -198,10 +201,26 @@ class HerobrineEntity extends Human {
 
             if ($this->getPhase() === $this->PHASE_END()) {
                 if ($damager instanceof Player) {
+                    if (isset($this->rewards[$damager->getName()])) {
+                        $damager->sendMessage("§cYou have taken the reward please appear new herobrine again!");
+                        return;
+                    }
+
                     ResinAPI::getInstance()->sendInvoice(
                         $damager,
                         function (Player $player, string $resinType, int $amount) {
-                            $player->sendMessage("Successfully used $amount of $resinType!");
+                            $inventory = Herobrine::getInstance()->rewardsManager->menu->getInventory();
+                            $items = [];
+                            foreach ($inventory->getContents() as $slot => $item) {
+                                if ($item->getTypeId() !== VanillaItems::AIR()->getTypeId()) {
+                                    $items[] = $item;
+                                }
+                            }
+
+                            $item = $items[array_rand($items)];
+                            $player->getInventory()->addItem($item);
+                            $this->rewards[$player->getName()] = true;
+                            $player->sendMessage("§aYou got §b".$item->getName()." §afrom Herobrine");
                         },
                     );
                 }
