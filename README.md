@@ -6,6 +6,7 @@ A fully-featured Herobrine implementation for PocketMine-MP servers with custom 
 
 ## Table of Contents
 
+- [Requirements](#requirements)
 - [Features](#features)
 - [Installation](#installation)
 - [Commands](#commands)
@@ -13,6 +14,14 @@ A fully-featured Herobrine implementation for PocketMine-MP servers with custom 
 - [Contributing](#contributing)
 - [License](#license)
 
+## Requirements <a name="requirements"></a>
+
+This plugin requires the following dependencies:
+
+- [ResinAPI Plugin](https://github.com/pixelwhiz/ResinAPI) - Economy/Invoice system
+- [InvMenu Virion](https://github.com/Muqsit/InvMenu) - For reward inventory management
+- PocketMine-MP 5.0.0 or higher
+- PHP 8.0 or higher
 ## Features <a name="features"></a>
 
 - **Authentic Herobrine Entity** with multiple behavior phases

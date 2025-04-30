@@ -43,6 +43,7 @@ use pocketmine\player\Player;
  * and provides interface for players to view rewards.
  */
 class RewardsManager {
+
     public Herobrine $plugin;
     public InvMenu $menu;
 
