@@ -11,6 +11,7 @@ A fully-featured Herobrine implementation for PocketMine-MP servers with custom 
 - [Installation](#installation)
 - [Commands](#commands)
 - [API Integration](#api-integration)
+- [Preview](#preview)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -66,6 +67,12 @@ if ($herobrine->isEntityExists($world)) {
 // Get Herobrine entity in world
 $entity = $herobrine->getEntityByWorld($world);
 ```
+
+## Preview <a name="preview"></a>
+
+[![Herobrine Plugin Preview](https://img.youtube.com/vi/MESuhpozCww/0.jpg)](https://www.youtube.com/watch?v=MESuhpozCww)
+
+Watch full preview at [YouTube](https://www.youtube.com/watch?v=MESuhpozCww)
 
 ## Contributing <a name="contributing"></a>
 
