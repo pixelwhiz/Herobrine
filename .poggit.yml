@@ -1,0 +1,10 @@
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/pixelwhiz/Herobrine
+build-by-default: true
+branches:
+- master
+projects:
+  Herobrine:
+    path: ""
+    lint: false
+    icon: "./assets/icon.png"
+...
