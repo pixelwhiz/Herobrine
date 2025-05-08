@@ -7,6 +7,7 @@ src-namespace-prefix: pixelwhiz\herobrine
 author: pixelwhiz
 depend:
   - ResinAPI
+
 description: A powerful and versatile plugin for managing and controlling herobrines.
 
 permissions:
