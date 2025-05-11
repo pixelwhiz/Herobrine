@@ -43,15 +43,16 @@ This plugin requires the following dependencies:
 
 ## Commands <a name="commands"></a>
 
-| Command      | Description                                   | Permission |
-|--------------|-----------------------------------------------|------------|
-| `/hb help`   | Shows all available commands                  | `herobrine.command.help` |
-| `/hb spawn`  | Spawns Herobrine at your location             | `herobrine.command.spawn` |
-| `/hb pos`    | Shows Herobrine's current/last position       | `herobrine.command.position` |
-| `/hb tp`     | Teleports you to Herobrine                    | `herobrine.command.teleport` |
-| `/hb tphere` | Teleports Herobrine to you                    | `herobrine.command.tphere` |
-| `/hb kill`   | Removes Herobrine from your world             | `herobrine.command.kill` |
-| `/hb rewards` | Set and configure rewards                     | `herobrine.command.rewards` |
+| Command      | Description                                   | Permission                     | Default |
+|--------------|-----------------------------------------------|--------------------------------|---------|
+| `/hb help`   | Shows all available commands                  | `herobrine.command.help`       | `true`  |
+| `/hb spawn`  | Spawns Herobrine at your location             | `herobrine.command.spawn`      | `op`    |
+| `/hb pos`    | Shows Herobrine's current/last position       | `herobrine.command.position`   | `true`  |
+| `/hb tp`     | Teleports you to Herobrine                    | `herobrine.command.teleport`   | `op`    |
+| `/hb tphere` | Teleports Herobrine to you                    | `herobrine.command.tphere`     | `op`    |
+| `/hb kill`   | Removes Herobrine from your world             | `herobrine.command.kill`       | `op`    |
+| `/hb rewards`| Set and configure rewards                     | `herobrine.command.rewards`    | `op`    |
+
 
 ## API Integration <a name="api-integration"></a>
 
