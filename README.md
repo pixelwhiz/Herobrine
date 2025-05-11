@@ -37,9 +37,10 @@ This plugin requires the following dependencies:
 ## Installation <a name="installation"></a>
 
 1. Download the latest release from [releases page](https://github.com/pixelwhiz/Herobrine/releases)
-2. Place the `Herobrine.phar` file in your server's `plugins` folder
-3. Restart your server
-4. Done
+2. Download [requirement]() files
+3. Place the `Herobrine.phar` and requirement file in your server's `plugins` folder
+4. Restart your server
+5. Done
 
 ## Commands <a name="commands"></a>
 
