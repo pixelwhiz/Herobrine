@@ -84,7 +84,7 @@ All kinds of contribution are welcome
 - Write / Edit the documents.
 - Fix bugs or add new features.
 
-and if you found bug or have any issues please report them [here](https://github.com/pixelwhiz/ResinAPI/issues/new)
+and if you found bug or have any issues please report them [here](https://github.com/pixelwhiz/Herobrine/issues/new)
 
 ## License <a name="license"></a>
 
